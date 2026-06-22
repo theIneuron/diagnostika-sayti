@@ -46,7 +46,7 @@ function validate(step: FormStep, data: AnketaFormData): Record<string, string> 
   return errors
 }
 
-export default function AnketaForm() {
+export default function AnketaForm({ wave = 1 }: { wave?: 1 | 2 }) {
   const router = useRouter()
   const [step, setStep] = useState<FormStep>(1)
   const [formData, setFormData] = useState<AnketaFormData>(INITIAL_FORM_DATA)
@@ -112,7 +112,7 @@ export default function AnketaForm() {
     setSubmitError(null)
 
     const payload = {
-      wave: 1,
+      wave,
       university: formData.university,
       course: formData.course,
       direction: formData.major,

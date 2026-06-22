@@ -46,12 +46,38 @@ export default async function RespondentsPage({
             Jami: {rows.length} · Baholangan: {scored} · Baholanmagan: {unscored}
           </p>
         </div>
-        <Link
-          href="/admin/respondents/export"
-          className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors"
-        >
-          CSV eksport
-        </Link>
+        <div className="flex gap-2">
+          <Link
+            href="/admin/respondents/export/excel"
+            className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors"
+          >
+            Excel
+          </Link>
+          <Link
+            href="/admin/respondents/export"
+            className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors"
+          >
+            CSV
+          </Link>
+        </div>
+      </div>
+
+      {/* To'lqin havolalari */}
+      <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 mb-5">
+        <p className="text-xs font-medium text-blue-700 mb-2">Ishtirokchilar uchun havola (to'lqin bo'yicha)</p>
+        <div className="flex flex-col gap-1.5">
+          {[1, 2].map(w => {
+            const url = `${process.env.NEXT_PUBLIC_SITE_URL ?? ''}/anketa${w === 2 ? '?wave=2' : ''}`
+            return (
+              <div key={w} className="flex items-center gap-2">
+                <span className="text-xs text-blue-600 font-medium w-20">To'lqin {w}:</span>
+                <code className="text-xs bg-white border border-blue-200 rounded px-2 py-0.5 text-blue-800 select-all flex-1 truncate">
+                  {url}
+                </code>
+              </div>
+            )
+          })}
+        </div>
       </div>
 
       {/* Filtrlar */}
