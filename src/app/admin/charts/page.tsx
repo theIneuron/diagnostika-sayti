@@ -5,7 +5,8 @@ import UniversityScoreBar from '@/components/admin/charts/UniversityScoreBar'
 import LevelStackedBar from '@/components/admin/charts/LevelStackedBar'
 import SelfVsActualScatter from '@/components/admin/charts/SelfVsActualScatter'
 import PartScoresBar from '@/components/admin/charts/PartScoresBar'
-import { UNIVERSITIES } from '@/types/anketa'
+import CourseScoreBar from '@/components/admin/charts/CourseScoreBar'
+import { UNIVERSITIES, COURSES } from '@/types/anketa'
 
 export const metadata: Metadata = { title: 'Diagrammalar | Admin' }
 export const dynamic = 'force-dynamic'
@@ -97,6 +98,22 @@ export default async function ChartsPage({
     partC: c.length ? Math.round(c.reduce((x, y) => x + y, 0) / c.length * 10) / 10 : 0,
   }))
 
+  // --- 5. Kurs bo'yicha o'rtacha umumiy ball ---
+  const courseScoreMap: Record<string, number[]> = {}
+  COURSES.forEach(c => { courseScoreMap[c] = [] })
+  rows.forEach(r => {
+    if (r.total_score == null || !r.course) return
+    if (!courseScoreMap[r.course as string]) courseScoreMap[r.course as string] = []
+    courseScoreMap[r.course as string].push(r.total_score as number)
+  })
+  const courseData = Object.entries(courseScoreMap)
+    .filter(([, scores]) => scores.length > 0)
+    .map(([course, scores]) => ({
+      course,
+      avg: Math.round(scores.reduce((a, b) => a + b, 0) / scores.length * 10) / 10,
+      count: scores.length,
+    }))
+
   return (
     <div className="max-w-4xl space-y-6">
       <div className="flex items-center justify-between">
@@ -137,6 +154,14 @@ export default async function ChartsPage({
           Faqat baholangan respondentlar.
         </p>
         <PartScoresBar data={partData} />
+      </Card>
+
+      <Card title="5. Kurs bo'yicha o'rtacha umumiy ball (0–100)">
+        <p className="text-xs text-gray-500 mb-4">
+          3-kurs, 4-kurs va magistratura talabalari natijalarini solishtirish.
+          Faqat baholangan respondentlar hisobga olingan.
+        </p>
+        <CourseScoreBar data={courseData} />
       </Card>
     </div>
   )

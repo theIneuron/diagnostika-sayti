@@ -19,9 +19,9 @@ const LEVEL_COLOR: Record<string, string> = {
 export default async function RespondentsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ wave?: string; university?: string }>
+  searchParams: Promise<{ wave?: string; university?: string; course?: string }>
 }) {
-  const { wave, university } = await searchParams
+  const { wave, university, course } = await searchParams
 
   let query = supabase
     .from('respondents')
@@ -30,6 +30,7 @@ export default async function RespondentsPage({
 
   if (wave) query = query.eq('wave', Number(wave))
   if (university) query = query.ilike('university', `%${university}%`)
+  if (course) query = query.eq('course', course)
 
   const { data } = await query
   const rows = data ?? []
@@ -81,7 +82,7 @@ export default async function RespondentsPage({
       </div>
 
       {/* Filtrlar */}
-      <form className="flex gap-3 mb-5">
+      <form className="flex flex-wrap gap-3 mb-5">
         <select
           name="wave"
           defaultValue={wave ?? ''}
@@ -91,11 +92,21 @@ export default async function RespondentsPage({
           <option value="1">To'lqin 1</option>
           <option value="2">To'lqin 2</option>
         </select>
+        <select
+          name="course"
+          defaultValue={course ?? ''}
+          className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm"
+        >
+          <option value="">Barcha kurslar</option>
+          <option value="3 курс">3 kurs</option>
+          <option value="4 курс">4 kurs</option>
+          <option value="магистратура">Magistratura</option>
+        </select>
         <input
           name="university"
           defaultValue={university ?? ''}
           placeholder="Vuz bo'yicha qidirish..."
-          className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm w-64"
+          className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm w-56"
         />
         <button
           type="submit"
@@ -103,7 +114,7 @@ export default async function RespondentsPage({
         >
           Filter
         </button>
-        {(wave || university) && (
+        {(wave || university || course) && (
           <Link href="/admin/respondents" className="px-4 py-1.5 text-sm text-gray-500 border border-gray-300 rounded-lg hover:bg-gray-50">
             Tozalash
           </Link>
