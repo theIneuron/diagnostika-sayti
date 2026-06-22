@@ -25,7 +25,7 @@ export default async function StatsPage({
   const { wave } = await searchParams
 
   let query = supabase.from('respondents').select(
-    'wave, level, total_score, part_a_score, part_b_score, part_c_score, ' +
+    'wave, university, course, level, total_score, part_a_score, part_b_score, part_c_score, ' +
     'b2_q1, b2_q2, b2_q3, b2_q4, b2_q5, b2_q6, ' +
     'b3_lms, b3_interactive, b3_ai, ' +
     'difficulties'
@@ -205,6 +205,38 @@ export default async function StatsPage({
     return 'Deyarli yo\'q'
   }
 
+  // --- 8. Universitetlar va kurslar bo'yicha solishtirma jadval ---
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function groupStats(arr: any[], keyFn: (r: any) => string) {
+    const map: Record<string, { scored: any[]; total: number }> = {}
+    arr.forEach(r => {
+      const k = keyFn(r) || "Noma'lum"
+      if (!map[k]) map[k] = { scored: [], total: 0 }
+      map[k].total++
+      if (r.part_b_score != null && r.part_c_score != null) map[k].scored.push(r)
+    })
+    return Object.entries(map)
+      .sort((a, b) => b[1].total - a[1].total)
+      .map(([label, { scored, total: n }]) => {
+        const totals = scored.map(r => r.total_score as number).filter(Boolean)
+        const ds = descStats(totals)
+        const levels: Record<string, number> = { 'Высокий': 0, 'Средний': 0, 'Низкий': 0 }
+        scored.forEach(r => { if (r.level && levels[r.level] !== undefined) levels[r.level]++ })
+        return { label, n, scored: scored.length, ds, levels }
+      })
+  }
+
+  const UNIV_SHORT: Record<string, string> = {
+    'Узбекский государственный университет мировых языков': 'УзГУМЯ',
+    'Ташкентский государственный педагогический университет имени Низами': 'ТГПУ им. Низами',
+    'Чирчикский государственный педагогический университет': 'Чирчикский ГПУ',
+    'Нукусский государственный педагогический институт': 'Нукусский ГПИ',
+  }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const univGroups = groupStats(rows, (r: any) => UNIV_SHORT[r.university] ?? r.university)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const courseGroups = groupStats(rows, (r: any) => r.course)
+
   return (
     <div className="max-w-3xl space-y-6">
       {/* Sarlavha */}
@@ -370,8 +402,21 @@ export default async function StatsPage({
         )}
       </Card>
 
+      {/* Universitetlar solishtirma jadvali */}
+      <Card title="5. Universitetlar bo'yicha solishtirma jadval">
+        <p className="text-xs text-gray-500 bg-gray-50 rounded-lg px-3 py-2 mb-4">
+          Faqat to'liq baholangan respondentlar uchun M va SD hisoblanadi. N — jami respondentlar.
+        </p>
+        <CompareTable groups={univGroups} />
+      </Card>
+
+      {/* Kurslar solishtirma jadvali */}
+      <Card title="6. Kurslar bo'yicha solishtirma jadval">
+        <CompareTable groups={courseGroups} />
+      </Card>
+
       {/* Blok II o'rtacha */}
-      <Card title="5. Блок II — O'z-o'zini baholash (Likert, 1–5)">
+      <Card title="7. Блок II — O'z-o'zini baholash (Likert, 1–5)">
         <p className="text-xs text-gray-500 bg-gray-50 rounded-lg px-3 py-2 mb-4 leading-relaxed">
           {"Anketaning II blokida talabalar "}
           <strong>raqamli vositalarni qanchalik egallashini</strong>
@@ -407,7 +452,7 @@ export default async function StatsPage({
       </Card>
 
       {/* Blok III chastota */}
-      <Card title="6. Блок III — Raqamli vositalar ishlatish chastotasi">
+      <Card title="8. Блок III — Raqamli vositalar ishlatish chastotasi">
         <p className="text-xs text-gray-500 bg-gray-50 rounded-lg px-3 py-2 mb-5 leading-relaxed">
           Har bir vosita bo'yicha respondentlar qanchalik tez-tez foydalanishini ko'rsatadi.
         </p>
@@ -444,7 +489,7 @@ export default async function StatsPage({
       </Card>
 
       {/* Blok IV qiyinchiliklar */}
-      <Card title="7. Блок IV — Raqamli vositalardan foydalanishdagi qiyinchiliklar">
+      <Card title="9. Блок IV — Raqamli vositalardan foydalanishdagi qiyinchiliklar">
         <p className="text-xs text-gray-500 bg-gray-50 rounded-lg px-3 py-2 mb-4 leading-relaxed">
           {"Talabalar bir vaqtda "}
           <strong>bir nechta qiyinchilikni</strong>
@@ -486,6 +531,53 @@ function Card({ title, children }: { title: string; children: React.ReactNode })
         {title}
       </h2>
       {children}
+    </div>
+  )
+}
+
+type GroupRow = {
+  label: string
+  n: number
+  scored: number
+  ds: { n: number; min: number; max: number; mean: number; sd: number; median: number } | null
+  levels: Record<string, number>
+}
+
+function CompareTable({ groups }: { groups: GroupRow[] }) {
+  if (groups.length === 0) return <p className="text-sm text-gray-400">Ma'lumot yo'q</p>
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="border-b border-gray-100">
+            <th className="text-left py-2 pr-3 text-xs font-medium text-gray-500">Guruh</th>
+            <th className="text-center py-2 px-2 text-xs font-medium text-gray-500">N</th>
+            <th className="text-center py-2 px-2 text-xs font-medium text-gray-500">Bah.</th>
+            <th className="text-center py-2 px-2 text-xs font-medium text-indigo-600">M</th>
+            <th className="text-center py-2 px-2 text-xs font-medium text-gray-500">SD</th>
+            <th className="text-center py-2 px-2 text-xs font-medium text-green-600">Yuk.</th>
+            <th className="text-center py-2 px-2 text-xs font-medium text-yellow-600">O'rt.</th>
+            <th className="text-center py-2 px-2 text-xs font-medium text-red-500">Past</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-gray-50">
+          {groups.map(({ label, n, scored, ds, levels }) => (
+            <tr key={label}>
+              <td className="py-2.5 pr-3 text-gray-800 font-medium text-xs">{label}</td>
+              <td className="py-2.5 px-2 text-center text-gray-600">{n}</td>
+              <td className="py-2.5 px-2 text-center text-gray-500 text-xs">{scored}</td>
+              <td className="py-2.5 px-2 text-center font-semibold text-indigo-700">{ds?.mean ?? '—'}</td>
+              <td className="py-2.5 px-2 text-center text-gray-500">{ds?.sd ?? '—'}</td>
+              <td className="py-2.5 px-2 text-center text-green-700">{levels['Высокий'] || 0}</td>
+              <td className="py-2.5 px-2 text-center text-yellow-700">{levels['Средний'] || 0}</td>
+              <td className="py-2.5 px-2 text-center text-red-500">{levels['Низкий'] || 0}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <p className="text-xs text-gray-400 mt-2">
+        N — jami · Bah. — baholangan · M — o'rtacha jami ball · SD — standart og'ish · Yuk./O'rt./Past — darajalar soni
+      </p>
     </div>
   )
 }
