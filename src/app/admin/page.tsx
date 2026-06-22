@@ -180,6 +180,7 @@ export default async function AdminDashboard() {
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {[
           { href: '/admin/respondents/export/excel', label: 'Excel eksport', color: 'green' },
+          { href: '/admin/respondents/export/scoring', label: 'Baholash varaqasi', color: 'green' },
           { href: '/admin/stats', label: 'Statistika', color: 'indigo' },
           { href: '/admin/open-answers', label: 'Ochiq javoblar', color: 'purple' },
           { href: '/admin/respondents?unscored=1', label: 'Baholanmaganlar', color: 'orange' },

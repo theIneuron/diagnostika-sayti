@@ -119,6 +119,13 @@ export default async function RespondentsPage({
         </div>
         <div className="flex gap-2">
           <Link
+            href={`/admin/respondents/export/scoring${wave ? `?wave=${wave}` : ''}`}
+            className="px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-lg hover:bg-purple-700 transition-colors"
+            title="Part B va C javoblarini baholash uchun Excel varaqasi (2 ekspert ustuni)"
+          >
+            Baholash varaqasi
+          </Link>
+          <Link
             href={`/admin/respondents/export/excel${buildQuery({ wave, course, university, unscored })}`}
             className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors"
           >
