@@ -277,7 +277,7 @@ export default async function ChartsPage({
 
           <Card title="7. Средний итоговый балл по курсам (0–100)">
             <p className="text-xs text-gray-500 mb-4">
-              Сравнение результатов студентов 3 курса, 4 курса и магистратуры.
+              Сравнение результатов по курсам: бакалавр 3–4 курс, магистратура 1–2 курс.
             </p>
             <CourseScoreBar data={courseData} />
           </Card>

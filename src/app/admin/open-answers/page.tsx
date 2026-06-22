@@ -68,9 +68,10 @@ export default async function OpenAnswersPage({
         </select>
         <select name="course" defaultValue={course ?? ''} className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm">
           <option value="">Все курсы</option>
-          <option value="3 курс">3 курс</option>
-          <option value="4 курс">4 курс</option>
-          <option value="магистратура">Магистратура</option>
+          <option value="Бакалавр 3 курс">Бакалавр 3 курс</option>
+          <option value="Бакалавр 4 курс">Бакалавр 4 курс</option>
+          <option value="Магистратура 1 курс">Магистратура 1 курс</option>
+          <option value="Магистратура 2 курс">Магистратура 2 курс</option>
         </select>
         <input
           name="university"

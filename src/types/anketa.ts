@@ -40,7 +40,7 @@ export const UNIVERSITIES = [
   'Бухарский государственный университет',
 ]
 
-export const COURSES = ['3 курс', '4 курс', 'магистратура']
+export const COURSES = ['Бакалавр 3 курс', 'Бакалавр 4 курс', 'Магистратура 1 курс', 'Магистратура 2 курс']
 
 export const LIKERT_STATEMENTS = [
   'Я умею размещать материалы в LMS (Moodle/Google Classroom)',
