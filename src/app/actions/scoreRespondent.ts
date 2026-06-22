@@ -28,21 +28,30 @@ export async function scoreRespondent(
     .eq('id', id)
     .single()
 
-  // total_score — generated column, uni qo'lda yozib bo'lmaydi (DB o'zi hisoblaydi)
   const partAScore = data?.part_a_score ?? 0
-  const totalScore = partAScore + partBScore + partCScore
+  const totalScore = Math.round((partAScore + partBScore + partCScore) * 100) / 100
   const level = totalScore >= 80 ? 'Высокий' : totalScore >= 50 ? 'Средний' : 'Низкий'
 
-  // total_score va level — generated columnlar, DB o'zi hisoblaydi
-  const { error } = await supabase
+  // total_score va level DB'da generated column bo'lishi mumkin (o'zi hisoblaydi),
+  // shuning uchun avval hammasi bilan update qilamiz, muvaffaqiyatsiz bo'lsa — faqat B/C.
+  const { error: fullError } = await supabase
     .from('respondents')
-    .update({ part_b_score: partBScore, part_c_score: partCScore })
+    .update({ part_b_score: partBScore, part_c_score: partCScore, total_score: totalScore, level })
     .eq('id', id)
 
-  if (error) {
-    return { error: error.message }
+  if (fullError) {
+    // Generated column xatosi bo'lsa — faqat B va C ni yoz, DB o'zi hisoblaydi
+    const { error: partialError } = await supabase
+      .from('respondents')
+      .update({ part_b_score: partBScore, part_c_score: partCScore })
+      .eq('id', id)
+    if (partialError) return { error: partialError.message }
   }
 
   revalidatePath(`/admin/respondents/${id}`)
+  revalidatePath('/admin/respondents')
+  revalidatePath('/admin/charts')
+  revalidatePath('/admin/stats')
+  revalidatePath('/admin')
   return { success: true }
 }
