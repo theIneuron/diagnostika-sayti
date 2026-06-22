@@ -6,7 +6,9 @@ import LevelStackedBar from '@/components/admin/charts/LevelStackedBar'
 import SelfVsActualScatter from '@/components/admin/charts/SelfVsActualScatter'
 import PartScoresBar from '@/components/admin/charts/PartScoresBar'
 import CourseScoreBar from '@/components/admin/charts/CourseScoreBar'
+import QuestionDifficultyBar from '@/components/admin/charts/QuestionDifficultyBar'
 import { UNIVERSITIES, COURSES } from '@/types/anketa'
+import { PART_A_QUESTIONS } from '@/types/test'
 
 export const metadata: Metadata = { title: 'Diagrammalar | Admin' }
 export const dynamic = 'force-dynamic'
@@ -38,7 +40,7 @@ export default async function ChartsPage({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let query = supabase.from('respondents').select<string, any>(
     'university, level, total_score, part_a_score, part_b_score, part_c_score, ' +
-    'b2_q1, b2_q2, b2_q3, b2_q4, b2_q5, b2_q6'
+    'b2_q1, b2_q2, b2_q3, b2_q4, b2_q5, b2_q6, part_a_answers, course'
   )
   if (wave) query = query.eq('wave', Number(wave))
 
@@ -114,6 +116,24 @@ export default async function ChartsPage({
       count: scores.length,
     }))
 
+  // --- 6. Part A — savol bo'yicha to'g'ri javob foizi ---
+  const CORRECT_ANSWERS: Record<string, string> = {
+    q1: 'Система управления обучением', q2: 'Moodle', q3: 'Мастерская (Workshop)',
+    q4: 'Google', q5: 'GIFT/XML', q6: 'Искусственный интеллект', q7: 'ChatGPT',
+    q8: 'Текстовый запрос пользователя к ИИ', q9: 'Уверенная генерация недостоверной информации',
+    q10: 'Kahoot', q11: 'Электронных карточках с адаптивным повторением',
+    q12: 'Сочетание очных занятий и онлайн-компонента', q13: 'Проверка грамматики и стиля текста',
+    q14: 'Отслеживание прогресса и активности студентов',
+    q15: 'Использование ИИ следует декларировать, сохраняя авторскую ответственность',
+  }
+  const respondentsWithA = rows.filter(r => r.part_a_answers && typeof r.part_a_answers === 'object')
+  const questionData = PART_A_QUESTIONS.map(q => {
+    const total   = respondentsWithA.length
+    const correct = respondentsWithA.filter(r => r.part_a_answers[q.id] === CORRECT_ANSWERS[q.id]).length
+    const pct     = total > 0 ? Math.round((correct / total) * 100) : 0
+    return { q: q.id.replace('q', ''), label: q.text, pct, correct, total }
+  })
+
   return (
     <div className="max-w-4xl space-y-6">
       <div className="flex items-center justify-between">
@@ -162,6 +182,14 @@ export default async function ChartsPage({
           Faqat baholangan respondentlar hisobga olingan.
         </p>
         <CourseScoreBar data={courseData} />
+      </Card>
+
+      <Card title="6. Part A — savol bo'yicha to'g'ri javob foizi">
+        <p className="text-xs text-gray-500 mb-4">
+          Har bir satr — bitta test savoli. Yashil ≥70%, sariq 40–69%, qizil &lt;40%.
+          Qizil savollar — eng ko'p xato qilingan mavzular.
+        </p>
+        <QuestionDifficultyBar data={questionData} />
       </Card>
     </div>
   )
