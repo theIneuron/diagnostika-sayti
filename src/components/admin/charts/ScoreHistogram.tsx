@@ -16,7 +16,7 @@ function getColor(range: string): string {
 
 export default function ScoreHistogram({ data }: { data: Row[] }) {
   if (!data.length || data.every(d => d.count === 0)) {
-    return <p className="text-sm text-gray-400 py-8 text-center">Нет оценённых респондентов</p>
+    return <p className="text-sm text-gray-400 py-8 text-center">Нет оценённых анкетируемых</p>
   }
   return (
     <ResponsiveContainer width="100%" height={240}>
@@ -24,7 +24,7 @@ export default function ScoreHistogram({ data }: { data: Row[] }) {
         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
         <XAxis dataKey="range" tick={{ fontSize: 11 }} />
         <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
-        <Tooltip formatter={(v) => [v, 'Респондентов']} />
+        <Tooltip formatter={(v) => [v, 'Анкетируемых']} />
         <Bar dataKey="count" radius={[4, 4, 0, 0]} maxBarSize={50}>
           <LabelList dataKey="count" position="top" style={{ fontSize: 11, fill: '#374151', fontWeight: 600 }} />
           {data.map(d => (

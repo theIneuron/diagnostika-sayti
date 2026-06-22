@@ -8,7 +8,7 @@ import {
 type Row = { univ: string; avg: number; count: number }
 
 function Empty() {
-  return <p className="text-sm text-gray-400 py-8 text-center">Нет оценённых респондентов</p>
+  return <p className="text-sm text-gray-400 py-8 text-center">Нет оценённых анкетируемых</p>
 }
 
 export default function UniversityScoreBar({ data }: { data: Row[] }) {

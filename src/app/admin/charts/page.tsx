@@ -286,7 +286,7 @@ export default async function ChartsPage({
         <div>
           <h1 className="text-xl font-bold text-gray-900">Диаграммы</h1>
           <p className="text-sm text-gray-500 mt-0.5">
-            Всего респондентов: <strong>{rows.length}</strong>
+            Всего анкетируемых: <strong>{rows.length}</strong>
           </p>
         </div>
         <WaveFilter defaultValue={wave ?? ''} basePath="/admin/charts" />
@@ -305,7 +305,7 @@ export default async function ChartsPage({
         }
       >
         <p className="text-xs text-gray-500 mb-4">
-          Всего респондентов: <strong>{rows.length}</strong>
+          Всего анкетируемых: <strong>{rows.length}</strong>
           {univPartAData.length === 0 && ' · Нет данных (тест не пройден)'}
         </p>
         <UniversityScoreBar data={univPartAData} />
@@ -325,7 +325,7 @@ export default async function ChartsPage({
                 <li><span className="text-yellow-600 font-medium">Жёлтый</span> — 40–69%</li>
                 <li><span className="text-red-500 font-medium">Красный</span> — &lt;40%</li>
               </ul>
-              <p className="mt-2 text-gray-500">Респондентов: <strong className="text-gray-700">{respondentsWithA.length}</strong></p>
+              <p className="mt-2 text-gray-500">Анкетируемых: <strong className="text-gray-700">{respondentsWithA.length}</strong></p>
             </>
           }
         >
@@ -350,7 +350,7 @@ export default async function ChartsPage({
           </>
         }
       >
-        <p className="text-xs text-gray-500 mb-4">Респондентов: <strong>{rows.length}</strong></p>
+        <p className="text-xs text-gray-500 mb-4">Анкетируемых: <strong>{rows.length}</strong></p>
         <LikertAvgBar data={likertData} />
       </Card>
 
@@ -372,7 +372,7 @@ export default async function ChartsPage({
           </>
         }
       >
-        <p className="text-xs text-gray-500 mb-4">Респондентов: <strong>{rows.length}</strong></p>
+        <p className="text-xs text-gray-500 mb-4">Анкетируемых: <strong>{rows.length}</strong></p>
         <ToolFrequencyBar data={toolFreqData} />
       </Card>
 
@@ -385,7 +385,7 @@ export default async function ChartsPage({
             <p>Какие затруднения студенты отмечают чаще всего (можно было выбрать несколько).</p>
             <p className="mt-2 font-semibold text-indigo-700">Как читать</p>
             <p>Диаграмма отсортирована по убыванию. Чем длиннее полоса — тем проблема актуальнее.</p>
-            <p className="mt-2 text-gray-500">Респондентов: <strong className="text-gray-700">{rows.length}</strong></p>
+            <p className="mt-2 text-gray-500">Анкетируемых: <strong className="text-gray-700">{rows.length}</strong></p>
           </>
         }
       >
@@ -417,7 +417,7 @@ export default async function ChartsPage({
               </>
             }
           >
-            <p className="text-xs text-gray-500 mb-4">Учтены только оценённые респонденты.</p>
+            <p className="text-xs text-gray-500 mb-4">Учтены только оценённые анкетируемые.</p>
             <UniversityScoreBar data={univScoreData} />
           </Card>
 
@@ -454,7 +454,7 @@ export default async function ChartsPage({
               </>
             }
           >
-            <p className="text-xs text-gray-500 mb-4">Каждая точка — один респондент.</p>
+            <p className="text-xs text-gray-500 mb-4">Каждая точка — один анкетируемый.</p>
             <SelfVsActualScatter data={scatterData} />
           </Card>
 
@@ -512,7 +512,7 @@ export default async function ChartsPage({
               </>
             }
           >
-            <p className="text-xs text-gray-500 mb-4">Оценённых респондентов: <strong>{rows.filter(r => r.total_score != null).length}</strong></p>
+            <p className="text-xs text-gray-500 mb-4">Оценённых анкетируемых: <strong>{rows.filter(r => r.total_score != null).length}</strong></p>
             <ScoreHistogram data={histogramData} />
           </Card>
         </>
@@ -551,7 +551,7 @@ function ScoringNeeded({ total }: { total: number }) {
         Диаграммы 5–10 появятся после оценивания
       </p>
       <p className="text-xs text-amber-600">
-        Всего респондентов: <strong>{total}</strong>.
+        Всего анкетируемых: <strong>{total}</strong>.
         После проверки частей Б и В автоматически откроются диаграммы 5–10.
       </p>
     </div>

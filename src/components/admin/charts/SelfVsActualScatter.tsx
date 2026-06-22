@@ -17,7 +17,7 @@ const LEVEL_COLOR: Record<string, string> = {
 const ALL_LEVELS = ['Высокий', 'Средний', 'Низкий', '—']
 
 function Empty() {
-  return <p className="text-sm text-gray-400 py-8 text-center">Нет оценённых респондентов</p>
+  return <p className="text-sm text-gray-400 py-8 text-center">Нет оценённых анкетируемых</p>
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
