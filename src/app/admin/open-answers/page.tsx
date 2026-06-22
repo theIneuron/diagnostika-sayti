@@ -3,7 +3,7 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 import WaveFilter from '@/components/admin/WaveFilter'
 
-export const metadata: Metadata = { title: "Ochiq javoblar | Admin" }
+export const metadata: Metadata = { title: 'Открытые ответы | ДиагКомп-Рус' }
 export const dynamic = 'force-dynamic'
 
 const supabase = createClient(
@@ -50,10 +50,10 @@ export default async function OpenAnswersPage({
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h1 className="text-xl font-bold text-gray-900">Ochiq javoblar</h1>
+          <h1 className="text-xl font-bold text-gray-900">Открытые ответы</h1>
           <p className="text-sm text-gray-500 mt-0.5">
-            {withAnswer.length} ta javob
-            {avgWords > 0 && <> · O&apos;rtacha {avgWords} so&apos;z</>}
+            {withAnswer.length} ответов
+            {avgWords > 0 && <> · Среднее {avgWords} слов</>}
           </p>
         </div>
         <WaveFilter defaultValue={wave ?? ''} basePath="/admin/open-answers" />
@@ -62,20 +62,20 @@ export default async function OpenAnswersPage({
       {/* Filtrlar */}
       <form className="flex flex-wrap gap-3 mb-5">
         <select name="wave" defaultValue={wave ?? ''} className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm">
-          <option value="">Barcha to'lqinlar</option>
-          <option value="1">To'lqin 1</option>
-          <option value="2">To'lqin 2</option>
+          <option value="">Все волны</option>
+          <option value="1">Волна 1</option>
+          <option value="2">Волна 2</option>
         </select>
         <select name="course" defaultValue={course ?? ''} className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm">
-          <option value="">Barcha kurslar</option>
-          <option value="3 курс">3 kurs</option>
-          <option value="4 курс">4 kurs</option>
-          <option value="магистратура">Magistratura</option>
+          <option value="">Все курсы</option>
+          <option value="3 курс">3 курс</option>
+          <option value="4 курс">4 курс</option>
+          <option value="магистратура">Магистратура</option>
         </select>
         <input
           name="university"
           defaultValue={university ?? ''}
-          placeholder="Vuz bo'yicha..."
+          placeholder="Поиск по вузу..."
           className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm w-48"
         />
         <label className="flex items-center gap-2 cursor-pointer select-none">
@@ -86,14 +86,14 @@ export default async function OpenAnswersPage({
             defaultChecked={showEmpty}
             className="rounded border-gray-300 text-indigo-600"
           />
-          <span className="text-sm text-gray-600">Bo'sh javoblarni ham ko'rsat</span>
+          <span className="text-sm text-gray-600">Показывать пустые ответы</span>
         </label>
         <button type="submit" className="px-4 py-1.5 text-sm text-white bg-gray-700 rounded-lg hover:bg-gray-800">
-          Filter
+          Применить
         </button>
         {(wave || university || course) && (
           <Link href="/admin/open-answers" className="px-4 py-1.5 text-sm text-gray-500 border border-gray-300 rounded-lg hover:bg-gray-50">
-            Tozalash
+            Сбросить
           </Link>
         )}
       </form>
@@ -101,7 +101,7 @@ export default async function OpenAnswersPage({
       {/* Javoblar ro'yxati */}
       {rows.length === 0 ? (
         <div className="bg-white rounded-xl border border-gray-200 p-10 text-center text-gray-400 text-sm">
-          Javob topilmadi
+          Ответы не найдены
         </div>
       ) : (
         <div className="space-y-3">
@@ -118,12 +118,12 @@ export default async function OpenAnswersPage({
                       href={`/admin/respondents/${r.id}`}
                       className="text-xs text-indigo-600 hover:underline font-medium"
                     >
-                      {r.university ?? "Noma'lum vuz"}
+                      {r.university ?? 'Неизвестный вуз'}
                     </Link>
                     {r.course && (
                       <span className="text-xs text-gray-500">{r.course}</span>
                     )}
-                    <span className="text-xs text-gray-400">To'lqin {r.wave ?? 1}</span>
+                    <span className="text-xs text-gray-400">Волна {r.wave ?? 1}</span>
                     {r.level && (
                       <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${LEVEL_COLOR[r.level] ?? 'bg-gray-100 text-gray-500'}`}>
                         {r.level}
@@ -144,10 +144,10 @@ export default async function OpenAnswersPage({
                     <p className="text-sm text-gray-800 whitespace-pre-wrap leading-relaxed">
                       {r.open_answer}
                     </p>
-                    <p className="text-xs text-gray-400 mt-2">{words} so'z</p>
+                    <p className="text-xs text-gray-400 mt-2">{words} слов</p>
                   </>
                 ) : (
-                  <p className="text-sm text-gray-300 italic">Javob yozilmagan</p>
+                  <p className="text-sm text-gray-300 italic">Ответ не заполнен</p>
                 )}
               </div>
             )

@@ -29,25 +29,25 @@ export function ScoreForm({
         <details className="group">
           <summary className="cursor-pointer text-xs font-medium text-indigo-600 hover:text-indigo-800 select-none list-none flex items-center gap-1 mb-2">
             <span className="group-open:rotate-90 transition-transform inline-block">▶</span>
-            Б qismi rubrikasi (0–30)
+            Рубрика части Б (0–30)
           </summary>
           <div className="text-xs text-gray-600 bg-gray-50 rounded-lg p-3 space-y-1.5 mb-2 border border-gray-200">
-            <div className="flex gap-2"><span className="font-semibold text-orange-600 w-12 shrink-0">0–10</span><span>Raqamli vositalar umuman eslatilmagan yoki mavzuga aloqasi yo'q</span></div>
-            <div className="flex gap-2"><span className="font-semibold text-yellow-600 w-12 shrink-0">11–20</span><span>1–2 ta tegishli vosita eslatilgan, asoslama yetarli emas</span></div>
-            <div className="flex gap-2"><span className="font-semibold text-green-600 w-12 shrink-0">21–30</span><span>3+ ta tegishli vosita har biri asoslangan holda ko'rsatilgan</span></div>
+            <div className="flex gap-2"><span className="font-semibold text-orange-600 w-12 shrink-0">0–10</span><span>Цифровые инструменты не упомянуты или не имеют отношения к теме</span></div>
+            <div className="flex gap-2"><span className="font-semibold text-yellow-600 w-12 shrink-0">11–20</span><span>Упомянуто 1–2 релевантных инструмента, обоснование недостаточное</span></div>
+            <div className="flex gap-2"><span className="font-semibold text-green-600 w-12 shrink-0">21–30</span><span>3+ релевантных инструмента, каждый обоснован</span></div>
           </div>
         </details>
 
         <details className="group">
           <summary className="cursor-pointer text-xs font-medium text-teal-600 hover:text-teal-800 select-none list-none flex items-center gap-1 mb-2">
             <span className="group-open:rotate-90 transition-transform inline-block">▶</span>
-            V qismi rubrikasi (0–50)
+            Рубрика части В (0–50)
           </summary>
           <div className="text-xs text-gray-600 bg-gray-50 rounded-lg p-3 space-y-1.5 mb-2 border border-gray-200">
-            <div className="flex gap-2"><span className="font-semibold text-orange-600 w-12 shrink-0">0–15</span><span>Topshiriq taqdim etilmagan yoki talabga umuman mos kelmaydi</span></div>
-            <div className="flex gap-2"><span className="font-semibold text-yellow-600 w-12 shrink-0">16–30</span><span>Qisman bajarilgan, asoslama sust yoki yuzaki</span></div>
-            <div className="flex gap-2"><span className="font-semibold text-blue-600 w-12 shrink-0">31–40</span><span>Talabni qondiradi, asoslama yetarli darajada</span></div>
-            <div className="flex gap-2"><span className="font-semibold text-green-600 w-12 shrink-0">41–50</span><span>To'liq bajarilgan, batafsil va aniq asoslama bilan</span></div>
+            <div className="flex gap-2"><span className="font-semibold text-orange-600 w-12 shrink-0">0–15</span><span>Задание не представлено или полностью не соответствует требованиям</span></div>
+            <div className="flex gap-2"><span className="font-semibold text-yellow-600 w-12 shrink-0">16–30</span><span>Выполнено частично, обоснование слабое или поверхностное</span></div>
+            <div className="flex gap-2"><span className="font-semibold text-blue-600 w-12 shrink-0">31–40</span><span>Требования выполнены, обоснование достаточное</span></div>
+            <div className="flex gap-2"><span className="font-semibold text-green-600 w-12 shrink-0">41–50</span><span>Выполнено полностью, с подробным и точным обоснованием</span></div>
           </div>
         </details>
       </div>
@@ -85,23 +85,23 @@ export function ScoreForm({
 
       {totalScore != null && !state.success && (
         <div className="p-3 bg-gray-50 rounded-lg border border-gray-200 text-sm">
-          <span className="text-gray-500">Jami: </span>
+          <span className="text-gray-500">Итого: </span>
           <span className="font-bold text-gray-900">{totalScore}</span>
           <span className="mx-2 text-gray-300">|</span>
-          <span className="text-gray-500">Daraja: </span>
+          <span className="text-gray-500">Уровень: </span>
           <span className="font-semibold text-gray-900">{level}</span>
         </div>
       )}
 
       {state.success && (
         <div className="p-3 bg-green-50 border border-green-200 rounded-lg text-sm text-green-700 font-medium">
-          Balllar muvaffaqiyatli saqlandi
+          Баллы успешно сохранены
         </div>
       )}
 
       {state.error && (
         <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm">
-          <p className="text-red-700 font-medium mb-1">Xato: ball saqlanmadi</p>
+          <p className="text-red-700 font-medium mb-1">Ошибка: баллы не сохранены</p>
           <p className="text-red-500 font-mono text-xs break-all">{state.error}</p>
         </div>
       )}
@@ -111,7 +111,7 @@ export function ScoreForm({
         disabled={pending}
         className="px-5 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
       >
-        {pending ? 'Saqlanmoqda...' : 'Сохранить оценки'}
+        {pending ? 'Сохранение...' : 'Сохранить оценки'}
       </button>
     </form>
   )

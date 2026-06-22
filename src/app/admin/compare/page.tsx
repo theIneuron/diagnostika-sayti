@@ -4,7 +4,7 @@ import WaveGroupedBar from '@/components/admin/charts/WaveGroupedBar'
 import { LIKERT_STATEMENTS } from '@/types/anketa'
 import { PART_A_QUESTIONS } from '@/types/test'
 
-export const metadata: Metadata = { title: "To'lqinlar solishtirmasi | Admin" }
+export const metadata: Metadata = { title: 'Анализ волн | ДиагКомп-Рус' }
 export const dynamic = 'force-dynamic'
 
 const supabase = createClient(
@@ -49,11 +49,11 @@ export default async function ComparePage() {
 
   // --- 1. Umumiy statistika ---
   const stats = [
-    { label: 'Respondentlar soni', wave1: w1.length, wave2: w2.length },
-    { label: "O'rtacha umumiy ball", wave1: avg(w1Scored.map(r => r.total_score)), wave2: avg(w2Scored.map(r => r.total_score)) },
-    { label: "O'rtacha Part A (max 20)", wave1: avg(w1.filter(r => r.part_a_score != null).map(r => r.part_a_score)), wave2: avg(w2.filter(r => r.part_a_score != null).map(r => r.part_a_score)) },
-    { label: "O'rtacha Part B (max 30)", wave1: avg(w1.filter(r => r.part_b_score != null).map(r => r.part_b_score)), wave2: avg(w2.filter(r => r.part_b_score != null).map(r => r.part_b_score)) },
-    { label: "O'rtacha Part C (max 50)", wave1: avg(w1.filter(r => r.part_c_score != null).map(r => r.part_c_score)), wave2: avg(w2.filter(r => r.part_c_score != null).map(r => r.part_c_score)) },
+    { label: 'Количество респондентов', wave1: w1.length, wave2: w2.length },
+    { label: 'Средний итоговый балл', wave1: avg(w1Scored.map(r => r.total_score)), wave2: avg(w2Scored.map(r => r.total_score)) },
+    { label: 'Среднее по части А (макс. 20)', wave1: avg(w1.filter(r => r.part_a_score != null).map(r => r.part_a_score)), wave2: avg(w2.filter(r => r.part_a_score != null).map(r => r.part_a_score)) },
+    { label: 'Среднее по части Б (макс. 30)', wave1: avg(w1.filter(r => r.part_b_score != null).map(r => r.part_b_score)), wave2: avg(w2.filter(r => r.part_b_score != null).map(r => r.part_b_score)) },
+    { label: 'Среднее по части В (макс. 50)', wave1: avg(w1.filter(r => r.part_c_score != null).map(r => r.part_c_score)), wave2: avg(w2.filter(r => r.part_c_score != null).map(r => r.part_c_score)) },
   ]
 
   // --- 2. Darajalar taqsimoti ---
@@ -92,25 +92,25 @@ export default async function ComparePage() {
   return (
     <div className="max-w-4xl space-y-6">
       <div>
-        <h1 className="text-xl font-bold text-gray-900">To'lqinlar solishtirmasi</h1>
+        <h1 className="text-xl font-bold text-gray-900">Анализ волн</h1>
         <p className="text-sm text-gray-500 mt-0.5">
-          To'lqin 1: <strong>{w1.length}</strong> ta respondent
+          Волна 1: <strong>{w1.length}</strong> респондентов
           {hasWave2
-            ? <> · To'lqin 2: <strong>{w2.length}</strong> ta respondent</>
-            : <> · <span className="text-orange-500">To'lqin 2 hali ma'lumot yo'q</span></>}
+            ? <> · Волна 2: <strong>{w2.length}</strong> респондентов</>
+            : <> · <span className="text-orange-500">Данные по волне 2 пока отсутствуют</span></>}
         </p>
       </div>
 
       {/* Umumiy jadval */}
-      <Card title="Umumiy ko'rsatkichlar">
+      <Card title="Общие показатели">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-100">
-                <th className="text-left py-2 text-xs font-medium text-gray-500">Ko'rsatkich</th>
-                <th className="text-center py-2 text-xs font-medium text-indigo-600">To'lqin 1</th>
-                <th className="text-center py-2 text-xs font-medium text-purple-600">To'lqin 2</th>
-                {hasWave2 && <th className="text-center py-2 text-xs font-medium text-gray-500">Farq</th>}
+                <th className="text-left py-2 text-xs font-medium text-gray-500">Показатель</th>
+                <th className="text-center py-2 text-xs font-medium text-indigo-600">Волна 1</th>
+                <th className="text-center py-2 text-xs font-medium text-purple-600">Волна 2</th>
+                {hasWave2 && <th className="text-center py-2 text-xs font-medium text-gray-500">Разница</th>}
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
@@ -137,22 +137,22 @@ export default async function ComparePage() {
       </Card>
 
       {/* Darajalar */}
-      <Card title="Darajalar taqsimoti — to'lqinlar kesimi">
+      <Card title="Распределение по уровням — в разрезе волн">
         <WaveGroupedBar data={levelData} yMax={Math.max(w1.length, w2.length, 5)} height={220} />
       </Card>
 
       {/* Likert */}
-      <Card title="Blok II — O'z-o'zini baholash (Likert 1–5) solishtirmasi">
+      <Card title="Блок II — Сравнение самооценки (шкала Ликерта 1–5)">
         <p className="text-xs text-gray-500 mb-4">
-          Har bir ifoda bo'yicha to'lqin 1 va to'lqin 2 o'rtacha ballari.
+          Среднее по каждому утверждению для волны 1 и волны 2.
         </p>
         <WaveGroupedBar data={likertData} yMax={5} height={280} />
       </Card>
 
       {/* Part A savollari */}
-      <Card title="Part A — savol bo'yicha to'g'ri javob foizi (%)">
+      <Card title="Часть А — доля правильных ответов по вопросам (%)">
         <p className="text-xs text-gray-500 mb-4">
-          To'lqin 1 va 2 o'rtasida bilim o'sishi ko'rinadi.
+          Динамика знаний между волной 1 и волной 2.
         </p>
         <WaveGroupedBar data={questionData} yMax={100} height={480} layout="vertical" />
       </Card>

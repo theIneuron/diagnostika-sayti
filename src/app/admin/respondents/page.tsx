@@ -2,7 +2,7 @@ import { createClient } from '@supabase/supabase-js'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 
-export const metadata: Metadata = { title: 'Respondentlar | Admin' }
+export const metadata: Metadata = { title: 'Респонденты | ДиагКомп-Рус' }
 export const dynamic = 'force-dynamic'
 
 function buildQuery(params: Record<string, string | undefined>) {
@@ -111,19 +111,19 @@ export default async function RespondentsPage({
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl font-bold text-gray-900">Respondentlar</h1>
+          <h1 className="text-xl font-bold text-gray-900">Респонденты</h1>
           <p className="text-sm text-gray-500 mt-0.5">
-            Jami: {total} · Baholangan: {scoredCount} · Baholanmagan: {unscoredCount}
-            {totalPages > 1 && <> · Sahifa {page}/{totalPages}</>}
+            Всего: {total} · Оценено: {scoredCount} · Не оценено: {unscoredCount}
+            {totalPages > 1 && <> · Страница {page}/{totalPages}</>}
           </p>
         </div>
         <div className="flex gap-2">
           <Link
             href={`/admin/respondents/export/scoring${wave ? `?wave=${wave}` : ''}`}
             className="px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-lg hover:bg-purple-700 transition-colors"
-            title="Part B va C javoblarini baholash uchun Excel varaqasi (2 ekspert ustuni)"
+            title="Оценочный лист для части B и C (2 колонки эксперта)"
           >
-            Baholash varaqasi
+            Оценочный лист
           </Link>
           <Link
             href={`/admin/respondents/export/excel${buildQuery({ wave, course, university, unscored })}`}
@@ -142,13 +142,13 @@ export default async function RespondentsPage({
 
       {/* To'lqin havolalari */}
       <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 mb-5">
-        <p className="text-xs font-medium text-blue-700 mb-2">Ishtirokchilar uchun havola (to'lqin bo'yicha)</p>
+        <p className="text-xs font-medium text-blue-700 mb-2">Ссылка для участников (по волнам)</p>
         <div className="flex flex-col gap-1.5">
           {[1, 2].map(w => {
             const url = `${process.env.NEXT_PUBLIC_SITE_URL ?? ''}/anketa${w === 2 ? '?wave=2' : ''}`
             return (
               <div key={w} className="flex items-center gap-2">
-                <span className="text-xs text-blue-600 font-medium w-20">To'lqin {w}:</span>
+                <span className="text-xs text-blue-600 font-medium w-20">Волна {w}:</span>
                 <code className="text-xs bg-white border border-blue-200 rounded px-2 py-0.5 text-blue-800 select-all flex-1 truncate">
                   {url}
                 </code>
@@ -161,20 +161,20 @@ export default async function RespondentsPage({
       {/* Filtrlar */}
       <form className="flex flex-wrap gap-3 mb-5">
         <select name="wave" defaultValue={wave ?? ''} className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm">
-          <option value="">Barcha to'lqinlar</option>
-          <option value="1">To'lqin 1</option>
-          <option value="2">To'lqin 2</option>
+          <option value="">Все волны</option>
+          <option value="1">Волна 1</option>
+          <option value="2">Волна 2</option>
         </select>
         <select name="course" defaultValue={course ?? ''} className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm">
-          <option value="">Barcha kurslar</option>
-          <option value="3 курс">3 kurs</option>
-          <option value="4 курс">4 kurs</option>
-          <option value="магистратура">Magistratura</option>
+          <option value="">Все курсы</option>
+          <option value="3 курс">3 курс</option>
+          <option value="4 курс">4 курс</option>
+          <option value="магистратура">Магистратура</option>
         </select>
         <input
           name="university"
           defaultValue={university ?? ''}
-          placeholder="Vuz bo'yicha qidirish..."
+          placeholder="Поиск по вузу..."
           className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm w-56"
         />
         <label className="flex items-center gap-2 cursor-pointer select-none">
@@ -185,14 +185,14 @@ export default async function RespondentsPage({
             defaultChecked={onlyUnscored}
             className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
           />
-          <span className="text-sm text-gray-600">Faqat baholanmaganlar</span>
+          <span className="text-sm text-gray-600">Только не оценённые</span>
         </label>
         <button type="submit" className="px-4 py-1.5 text-sm text-white bg-gray-700 rounded-lg hover:bg-gray-800">
-          Filter
+          Применить
         </button>
         {(wave || university || course || onlyUnscored) && (
           <Link href="/admin/respondents" className="px-4 py-1.5 text-sm text-gray-500 border border-gray-300 rounded-lg hover:bg-gray-50">
-            Tozalash
+            Сбросить
           </Link>
         )}
       </form>
@@ -203,22 +203,22 @@ export default async function RespondentsPage({
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
               <th className="text-left px-4 py-3 text-xs uppercase">#</th>
-              <th className="text-left px-4 py-3 text-xs uppercase">{sortLink('university', 'Vuz')}</th>
-              <th className="text-left px-4 py-3 text-xs uppercase">{sortLink('course', 'Kurs')}</th>
-              <th className="text-center px-3 py-3 text-xs font-medium text-gray-500 uppercase">To'lqin</th>
+              <th className="text-left px-4 py-3 text-xs uppercase">{sortLink('university', 'Вуз')}</th>
+              <th className="text-left px-4 py-3 text-xs uppercase">{sortLink('course', 'Курс')}</th>
+              <th className="text-center px-3 py-3 text-xs font-medium text-gray-500 uppercase">Волна</th>
               <th className="text-center px-3 py-3 text-xs uppercase">{sortLink('part_a_score', 'A')}</th>
               <th className="text-center px-3 py-3 text-xs uppercase">{sortLink('part_b_score', 'B')}</th>
-              <th className="text-center px-3 py-3 text-xs uppercase">{sortLink('part_c_score', 'V')}</th>
-              <th className="text-center px-3 py-3 text-xs uppercase">{sortLink('total_score', 'Jami')}</th>
-              <th className="text-center px-3 py-3 text-xs font-medium text-gray-500 uppercase">Daraja</th>
-              <th className="text-left px-4 py-3 text-xs uppercase">{sortLink('created_at', 'Sana')}</th>
+              <th className="text-center px-3 py-3 text-xs uppercase">{sortLink('part_c_score', 'В')}</th>
+              <th className="text-center px-3 py-3 text-xs uppercase">{sortLink('total_score', 'Итого')}</th>
+              <th className="text-center px-3 py-3 text-xs font-medium text-gray-500 uppercase">Уровень</th>
+              <th className="text-left px-4 py-3 text-xs uppercase">{sortLink('created_at', 'Дата')}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
             {rows.length === 0 && (
               <tr>
                 <td colSpan={10} className="text-center py-10 text-gray-400">
-                  Respondentlar yo'q
+                  Нет респондентов
                 </td>
               </tr>
             )}
@@ -267,7 +267,7 @@ export default async function RespondentsPage({
       {totalPages > 1 && (
         <div className="flex items-center justify-between mt-4">
           <p className="text-xs text-gray-500">
-            {from + 1}–{Math.min(to + 1, total)} / {total} ta
+            {from + 1}–{Math.min(to + 1, total)} / {total}
           </p>
           <div className="flex items-center gap-1">
             {page > 1 && (
@@ -275,7 +275,7 @@ export default async function RespondentsPage({
                 href={`/admin/respondents${buildQuery({ ...filters, sort, dir, page: String(page - 1) })}`}
                 className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50"
               >
-                ← Oldingi
+                ← Предыдущая
               </Link>
             )}
             {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
@@ -304,7 +304,7 @@ export default async function RespondentsPage({
                 href={`/admin/respondents${buildQuery({ ...filters, sort, dir, page: String(page + 1) })}`}
                 className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50"
               >
-                Keyingi →
+                Следующая →
               </Link>
             )}
           </div>

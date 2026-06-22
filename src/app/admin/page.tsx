@@ -2,7 +2,7 @@ import { createClient } from '@supabase/supabase-js'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 
-export const metadata: Metadata = { title: 'Dashboard | Admin' }
+export const metadata: Metadata = { title: 'Панель управления | ДиагКомп-Рус' }
 export const dynamic = 'force-dynamic'
 
 const supabase = createClient(
@@ -52,7 +52,7 @@ export default async function AdminDashboard() {
   // University breakdown
   const univMap: Record<string, { total: number; scored: number }> = {}
   rows.forEach(r => {
-    const key = r.university ?? "Noma'lum"
+    const key = r.university ?? 'Неизвестный вуз'
     if (!univMap[key]) univMap[key] = { total: 0, scored: 0 }
     univMap[key].total++
     if (r.part_b_score != null && r.part_c_score != null) univMap[key].scored++
@@ -65,24 +65,24 @@ export default async function AdminDashboard() {
   return (
     <div className="max-w-4xl space-y-6">
       <div>
-        <h1 className="text-xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-sm text-gray-500 mt-0.5">Tadqiqot holati — real vaqtda</p>
+        <h1 className="text-xl font-bold text-gray-900">Панель управления</h1>
+        <p className="text-sm text-gray-500 mt-0.5">Состояние исследования — в реальном времени</p>
       </div>
 
       {/* KPI cards */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <KpiCard label="Jami respondent" value={String(total)} sub={`To'lqin 1: ${wave1} · 2: ${wave2}`} color="indigo" />
-        <KpiCard label="Baholangan" value={String(scored.length)} sub={`${total > 0 ? Math.round(scored.length / total * 100) : 0}% yakunlangan`} color="green" />
-        <KpiCard label="Baholanmagan" value={String(unscored)} sub={unscored > 0 ? "Ko'rib chiqing" : 'Hammasi tayyor'} color={unscored > 0 ? 'orange' : 'gray'} />
-        <KpiCard label="O'rtacha ball" value={avgScore != null ? `${avgScore}` : '—'} sub="/ 100 (baholanganlarda)" color="purple" />
+        <KpiCard label="Всего респондентов" value={String(total)} sub={`Волна 1: ${wave1} · 2: ${wave2}`} color="indigo" />
+        <KpiCard label="Оценено" value={String(scored.length)} sub={`${total > 0 ? Math.round(scored.length / total * 100) : 0}% завершено`} color="green" />
+        <KpiCard label="Не оценено" value={String(unscored)} sub={unscored > 0 ? 'Требует внимания' : 'Все готово'} color={unscored > 0 ? 'orange' : 'gray'} />
+        <KpiCard label="Среднее" value={avgScore != null ? `${avgScore}` : '—'} sub="/ 100 (по оценённым)" color="purple" />
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {/* Darajalar */}
         <div className="bg-white rounded-xl border border-gray-200 p-5">
-          <h2 className="text-sm font-semibold text-gray-700 mb-4">Darajalar taqsimoti</h2>
+          <h2 className="text-sm font-semibold text-gray-700 mb-4">Распределение по уровням</h2>
           {scored.length === 0 ? (
-            <p className="text-sm text-gray-400">Baholangan respondent yo'q</p>
+            <p className="text-sm text-gray-400">Нет оценённых респондентов</p>
           ) : (
             <div className="space-y-3">
               {Object.entries(levelCounts).map(([lv, cnt]) => {
@@ -101,29 +101,29 @@ export default async function AdminDashboard() {
             </div>
           )}
           <div className="mt-4 pt-3 border-t border-gray-100 flex gap-3">
-            <Link href="/admin/charts" className="text-xs text-indigo-600 hover:underline">Diagrammalar →</Link>
-            <Link href="/admin/compare" className="text-xs text-indigo-600 hover:underline">To'lqin tahlili →</Link>
+            <Link href="/admin/charts" className="text-xs text-indigo-600 hover:underline">Диаграммы →</Link>
+            <Link href="/admin/compare" className="text-xs text-indigo-600 hover:underline">Анализ волн →</Link>
           </div>
         </div>
 
         {/* Universitetlar */}
         <div className="bg-white rounded-xl border border-gray-200 p-5">
-          <h2 className="text-sm font-semibold text-gray-700 mb-4">Universitetlar bo'yicha</h2>
+          <h2 className="text-sm font-semibold text-gray-700 mb-4">По университетам</h2>
           {univList.length === 0 ? (
-            <p className="text-sm text-gray-400">Ma'lumot yo'q</p>
+            <p className="text-sm text-gray-400">Данных нет</p>
           ) : (
             <div className="space-y-2">
               {univList.map(([univ, { total: t, scored: s }]) => (
                 <div key={univ} className="flex items-center gap-2 text-sm">
                   <span className="flex-1 text-gray-700 truncate" title={univ}>{univ}</span>
-                  <span className="text-xs text-gray-400 shrink-0">{s}/{t} baholangan</span>
+                  <span className="text-xs text-gray-400 shrink-0">{s}/{t} оценено</span>
                   <span className="font-semibold text-gray-800 w-6 text-right">{t}</span>
                 </div>
               ))}
             </div>
           )}
           <div className="mt-4 pt-3 border-t border-gray-100">
-            <Link href="/admin/respondents" className="text-xs text-indigo-600 hover:underline">Ro'yxat →</Link>
+            <Link href="/admin/respondents" className="text-xs text-indigo-600 hover:underline">Список →</Link>
           </div>
         </div>
       </div>
@@ -131,28 +131,28 @@ export default async function AdminDashboard() {
       {/* So'nggi respondentlar */}
       <div className="bg-white rounded-xl border border-gray-200 p-5">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-sm font-semibold text-gray-700">So'nggi qo'shilganlar</h2>
+          <h2 className="text-sm font-semibold text-gray-700">Последние добавленные</h2>
           {unscored > 0 && (
             <Link
               href="/admin/respondents?unscored=1"
               className="text-xs bg-orange-50 border border-orange-200 text-orange-600 px-3 py-1 rounded-lg hover:bg-orange-100 font-medium"
             >
-              {unscored} ta baholanmagan →
+              {unscored} не оценено →
             </Link>
           )}
         </div>
         {recent.length === 0 ? (
-          <p className="text-sm text-gray-400">Respondent yo'q</p>
+          <p className="text-sm text-gray-400">Нет респондентов</p>
         ) : (
           <div className="divide-y divide-gray-50">
             {recent.map(r => (
               <div key={r.id} className="flex items-center gap-3 py-2.5">
                 <div className="flex-1 min-w-0">
                   <Link href={`/admin/respondents/${r.id}`} className="text-sm text-gray-800 hover:text-indigo-600 hover:underline truncate block">
-                    {r.university ?? "Noma'lum vuz"}
+                    {r.university ?? 'Неизвестный вуз'}
                   </Link>
                   <p className="text-xs text-gray-400 mt-0.5">
-                    {r.course ?? '—'} · To'lqin {r.wave ?? 1}
+                    {r.course ?? '—'} · Волна {r.wave ?? 1}
                   </p>
                 </div>
                 {r.level ? (
@@ -160,7 +160,7 @@ export default async function AdminDashboard() {
                     {r.total_score}/100
                   </span>
                 ) : (
-                  <span className="text-xs text-orange-400 font-medium shrink-0">Baholanmagan</span>
+                  <span className="text-xs text-orange-400 font-medium shrink-0">Не оценён</span>
                 )}
                 <span className="text-xs text-gray-400 shrink-0">
                   {new Date(r.created_at).toLocaleDateString('ru-RU')}
@@ -171,7 +171,7 @@ export default async function AdminDashboard() {
         )}
         <div className="mt-3 pt-3 border-t border-gray-100">
           <Link href="/admin/respondents" className="text-xs text-indigo-600 hover:underline">
-            Barcha {total} ta respondentni ko'rish →
+            Все {total} респондентов →
           </Link>
         </div>
       </div>
@@ -179,11 +179,11 @@ export default async function AdminDashboard() {
       {/* Tezkor havolalar */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {[
-          { href: '/admin/respondents/export/excel', label: 'Excel eksport', color: 'green' },
-          { href: '/admin/respondents/export/scoring', label: 'Baholash varaqasi', color: 'green' },
-          { href: '/admin/stats', label: 'Statistika', color: 'indigo' },
-          { href: '/admin/open-answers', label: 'Ochiq javoblar', color: 'purple' },
-          { href: '/admin/respondents?unscored=1', label: 'Baholanmaganlar', color: 'orange' },
+          { href: '/admin/respondents/export/excel', label: 'Экспорт Excel', color: 'green' },
+          { href: '/admin/respondents/export/scoring', label: 'Оценочный лист', color: 'green' },
+          { href: '/admin/stats', label: 'Статистика', color: 'indigo' },
+          { href: '/admin/open-answers', label: 'Открытые ответы', color: 'purple' },
+          { href: '/admin/respondents?unscored=1', label: 'Не оценённые', color: 'orange' },
         ].map(({ href, label, color }) => (
           <Link
             key={href}

@@ -11,7 +11,7 @@ import LikertAvgBar from '@/components/admin/charts/LikertAvgBar'
 import { UNIVERSITIES, COURSES, LIKERT_STATEMENTS } from '@/types/anketa'
 import { PART_A_QUESTIONS } from '@/types/test'
 
-export const metadata: Metadata = { title: 'Diagrammalar | Admin' }
+export const metadata: Metadata = { title: 'Диаграммы | ДиагКомп-Рус' }
 export const dynamic = 'force-dynamic'
 
 const supabase = createClient(
@@ -27,7 +27,7 @@ const UNIV_SHORT: Record<string, string> = {
 }
 
 function shortUniv(name: string | null): string {
-  if (!name) return "Noma'lum"
+  if (!name) return 'Неизвестный'
   return UNIV_SHORT[name] ?? name.slice(0, 18)
 }
 
@@ -62,10 +62,10 @@ export default async function ChartsPage({
       <div className="max-w-4xl">
         <h1 className="text-xl font-bold text-gray-900 mb-4">Diagrammalar</h1>
         <div className="bg-red-50 border border-red-200 rounded-xl p-5">
-          <p className="text-sm font-semibold text-red-700 mb-1">Supabase xatosi (SELECT)</p>
+          <p className="text-sm font-semibold text-red-700 mb-1">Ошибка Supabase (SELECT)</p>
           <pre className="text-xs text-red-600 whitespace-pre-wrap">{JSON.stringify(baseError, null, 2)}</pre>
           <p className="text-xs text-red-500 mt-2">
-            Supabase SQL Editorga kiring va SELECT policy qo'shing:<br />
+            Откройте Supabase SQL Editor и добавьте политику SELECT:<br />
             <code>CREATE POLICY &quot;anon_select&quot; ON respondents FOR SELECT TO anon USING (true);</code>
           </p>
         </div>
@@ -206,36 +206,36 @@ export default async function ChartsPage({
     <div className="max-w-4xl space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-gray-900">Diagrammalar</h1>
+          <h1 className="text-xl font-bold text-gray-900">Диаграммы</h1>
           <p className="text-sm text-gray-500 mt-0.5">
-            Jami respondentlar: <strong>{rows.length}</strong>
+            Всего респондентов: <strong>{rows.length}</strong>
           </p>
         </div>
         <WaveFilter defaultValue={wave ?? ''} basePath="/admin/charts" />
       </div>
 
       {/* === HOZIR ISHLAYDI: scoring talab etmaydi === */}
-      <Card title="1. Part A — universitetlar kesimida o'rtacha ball (max 20)">
+      <Card title="1. Часть А — средний балл по университетам (макс. 20)">
         <p className="text-xs text-gray-500 mb-4">
-          Jami respondentlar: <strong>{rows.length}</strong>
-          {univPartAData.length === 0 && ' · Part A ma\'lumoti yo\'q (test topshirilmagan)'}
+          Всего респондентов: <strong>{rows.length}</strong>
+          {univPartAData.length === 0 && ' · Нет данных по части А (тест не пройден)'}
         </p>
         <UniversityScoreBar data={univPartAData} />
       </Card>
 
       {respondentsWithA.length > 0 && (
-        <Card title="1b. Part A — savol bo'yicha to'g'ri javob foizi">
+        <Card title="1б. Часть А — доля правильных ответов по вопросам">
           <p className="text-xs text-gray-500 mb-4">
-            Har bir satr — bitta test savoli. Yashil ≥70%, sariq 40–69%, qizil &lt;40%.
-            Respondentlar: <strong>{respondentsWithA.length}</strong>
+            Каждая строка — один вопрос теста. Зелёный ≥70%, жёлтый 40–69%, красный &lt;40%.
+            Респондентов: <strong>{respondentsWithA.length}</strong>
           </p>
           <QuestionDifficultyBar data={questionData} />
         </Card>
       )}
 
-      <Card title="2. O'z-o'zini baholash (Likert 1–5) — savol bo'yicha o'rtacha">
+      <Card title="2. Самооценка (шкала Ликерта 1–5) — среднее по вопросам">
         <p className="text-xs text-gray-500 mb-4">
-          Indigo ≥4 (yuqori), binafsha 3–4 (o'rta), qizil &lt;3 (past). Respondentlar: <strong>{rows.length}</strong>
+          Индиго ≥4 (высокий), фиолетовый 3–4 (средний), красный &lt;3 (низкий). Респондентов: <strong>{rows.length}</strong>
         </p>
         <LikertAvgBar data={likertData} />
       </Card>
@@ -247,37 +247,37 @@ export default async function ChartsPage({
 
       {univScoreData.length > 0 && (
         <>
-          <Card title="3. Universitetlar bo'yicha o'rtacha umumiy ball (0–100)">
+          <Card title="3. Средний итоговый балл по университетам (0–100)">
             <p className="text-xs text-gray-500 mb-4">
-              Faqat B va V qismlari baholangan respondentlar hisobga olingan.
+              Учтены только оценённые по частям Б и В респонденты.
             </p>
             <UniversityScoreBar data={univScoreData} />
           </Card>
 
-          <Card title="4. Darajalar taqsimoti — universitetlar kesimi">
+          <Card title="4. Распределение по уровням — в разрезе университетов">
             <p className="text-xs text-gray-500 mb-4">
-              Har bir stacked ustun bir universitetdagi baholangan respondentlar soni.
+              Каждый столбец — количество оценённых респондентов одного университета.
             </p>
             <LevelStackedBar data={levelData} />
           </Card>
 
-          <Card title="5. O'z-o'zini baholash vs test natijasi korrelyatsiyasi">
+          <Card title="5. Корреляция: самооценка vs результат теста">
             <p className="text-xs text-gray-500 mb-4">
-              Har bir nuqta — bir respondent. X o'qi — Likert o'rtachasi. Y o'qi — umumiy test bali.
+              Каждая точка — один респондент. Ось X — среднее по шкале Ликерта. Ось Y — итоговый балл теста.
             </p>
             <SelfVsActualScatter data={scatterData} />
           </Card>
 
-          <Card title="6. Test qismlari bo'yicha o'rtacha ball — universitetlar kesimi">
+          <Card title="6. Средние баллы по частям — в разрезе университетов">
             <p className="text-xs text-gray-500 mb-4">
-              A qismi — nazariy (max 20), B qismi — keys (max 30), V qismi — amaliy topshiriq (max 50).
+              Часть А — теоретическая (макс. 20), Часть Б — кейс (макс. 30), Часть В — практическое задание (макс. 50).
             </p>
             <PartScoresBar data={partData} />
           </Card>
 
-          <Card title="7. Kurs bo'yicha o'rtacha umumiy ball (0–100)">
+          <Card title="7. Средний итоговый балл по курсам (0–100)">
             <p className="text-xs text-gray-500 mb-4">
-              3-kurs, 4-kurs va magistratura talabalari natijalarini solishtirish.
+              Сравнение результатов студентов 3 курса, 4 курса и магистратуры.
             </p>
             <CourseScoreBar data={courseData} />
           </Card>
@@ -291,11 +291,11 @@ function ScoringNeeded({ scored, total }: { scored: number; total: number }) {
   return (
     <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 text-center">
       <p className="text-sm font-semibold text-amber-800 mb-1">
-        Qolgan diagrammalar baholashdan keyin ko'rinadi
+        Остальные диаграммы появятся после оценивания
       </p>
       <p className="text-xs text-amber-600">
-        Hozir baholangan: <strong>{scored}</strong> / {total} ta respondent.
-        Respondent baholab bo'linganidan keyin 3–7 ta qo'shimcha diagramma avtomatik paydo bo'ladi.
+        Оценено: <strong>{scored}</strong> / {total} респондентов.
+        После оценивания автоматически появятся диаграммы 3–7.
       </p>
     </div>
   )

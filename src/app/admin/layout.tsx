@@ -8,7 +8,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <aside className="w-52 bg-white border-r border-gray-200 flex flex-col">
         <div className="px-4 py-5 border-b border-gray-200">
           <p className="text-xs text-gray-400 uppercase tracking-wide">Панель управления</p>
-          <p className="text-sm font-semibold text-gray-800 mt-0.5">Диагностика</p>
+          <p className="text-sm font-semibold text-gray-800 mt-0.5">ДиагКомп-Рус</p>
         </div>
 
         <nav className="flex-1 p-3 space-y-1">
@@ -16,37 +16,37 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             href="/admin"
             className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"
           >
-            Dashboard
+            Панель управления
           </Link>
           <Link
             href="/admin/respondents"
             className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"
           >
-            Respondentlar
+            Респонденты
           </Link>
           <Link
             href="/admin/stats"
             className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"
           >
-            Statistika
+            Статистика
           </Link>
           <Link
             href="/admin/charts"
             className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"
           >
-            Diagrammalar
+            Диаграммы
           </Link>
           <Link
             href="/admin/compare"
             className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"
           >
-            To'lqin tahlili
+            Анализ волн
           </Link>
           <Link
             href="/admin/open-answers"
             className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"
           >
-            Ochiq javoblar
+            Открытые ответы
           </Link>
         </nav>
 
@@ -56,7 +56,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               type="submit"
               className="w-full px-3 py-2 text-sm text-gray-500 rounded-lg hover:bg-gray-100 transition-colors text-left"
             >
-              Chiqish
+              Выйти
             </button>
           </form>
         </div>

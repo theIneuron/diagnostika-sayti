@@ -75,12 +75,12 @@ export default async function RespondentDetailPage({
     <div className="max-w-3xl">
       <div className="flex items-center justify-between mb-6">
         <Link href="/admin/respondents" className="text-sm text-gray-400 hover:text-gray-600">
-          ← Ro'yxatga qaytish
+          ← К списку
         </Link>
         <div className="flex items-center gap-2">
           {!isScored && (
             <span className="text-xs bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full font-medium">
-              Baholanmagan
+              Не оценён
             </span>
           )}
           <Link
@@ -88,14 +88,14 @@ export default async function RespondentDetailPage({
             className={`px-3 py-1.5 text-sm border rounded-lg ${prevId ? 'border-gray-300 text-gray-600 hover:bg-gray-50' : 'border-gray-100 text-gray-300 cursor-not-allowed'}`}
             aria-disabled={!prevId}
           >
-            ← Oldingi
+            ← Предыдущий
           </Link>
           <Link
             href={nextId ? `/admin/respondents/${nextId}` : '#'}
             className={`px-3 py-1.5 text-sm border rounded-lg ${nextId ? 'border-gray-300 text-gray-600 hover:bg-gray-50' : 'border-gray-100 text-gray-300 cursor-not-allowed'}`}
             aria-disabled={!nextId}
           >
-            Keyingi →
+            Следующий →
           </Link>
         </div>
       </div>
@@ -103,15 +103,15 @@ export default async function RespondentDetailPage({
       {/* Score summary bar */}
       <div className="bg-white rounded-xl border border-gray-200 p-4 mb-4 flex flex-wrap gap-6 items-center">
         <div>
-          <p className="text-xs text-gray-400 uppercase tracking-wide">Vuz</p>
+          <p className="text-xs text-gray-400 uppercase tracking-wide">Вуз</p>
           <p className="text-sm font-semibold text-gray-800 mt-0.5">{r.university ?? '—'}</p>
         </div>
         <div>
-          <p className="text-xs text-gray-400 uppercase tracking-wide">Kurs</p>
+          <p className="text-xs text-gray-400 uppercase tracking-wide">Курс</p>
           <p className="text-sm font-semibold text-gray-800 mt-0.5">{r.course ?? '—'}</p>
         </div>
         <div>
-          <p className="text-xs text-gray-400 uppercase tracking-wide">To'lqin</p>
+          <p className="text-xs text-gray-400 uppercase tracking-wide">Волна</p>
           <p className="text-sm font-semibold text-gray-800 mt-0.5">{r.wave ?? 1}</p>
         </div>
         <div>
@@ -131,14 +131,14 @@ export default async function RespondentDetailPage({
           </p>
         </div>
         <div>
-          <p className="text-xs text-gray-400 uppercase tracking-wide">Jami</p>
+          <p className="text-xs text-gray-400 uppercase tracking-wide">Итого</p>
           <p className="text-sm font-bold text-indigo-600 mt-0.5">
             {r.total_score != null ? `${r.total_score} / 100` : '—'}
           </p>
         </div>
         {r.level && (
           <div>
-            <p className="text-xs text-gray-400 uppercase tracking-wide">Daraja</p>
+            <p className="text-xs text-gray-400 uppercase tracking-wide">Уровень</p>
             <p className={`text-sm font-semibold mt-0.5 ${r.level === 'Высокий' ? 'text-green-600' : r.level === 'Средний' ? 'text-yellow-600' : 'text-red-500'}`}>
               {r.level}
             </p>
@@ -205,10 +205,10 @@ export default async function RespondentDetailPage({
               <div key={q.id} className={`p-3 rounded-lg border text-sm ${given ? (isCorrect ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50') : 'border-gray-200'}`}>
                 <p className="font-medium text-gray-800 mb-1">{i + 1}. {q.text}</p>
                 <p className={isCorrect ? 'text-green-700' : 'text-red-600'}>
-                  Javob: {given ?? '—'}
+                  Ответ: {given ?? '—'}
                 </p>
                 {!isCorrect && given && (
-                  <p className="text-green-700 text-xs mt-0.5">To'g'ri: {correct}</p>
+                  <p className="text-green-700 text-xs mt-0.5">Верно: {correct}</p>
                 )}
               </div>
             )

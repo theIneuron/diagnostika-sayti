@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { LIKERT_STATEMENTS, DIFFICULTY_OPTIONS, FREQUENCY_TOOLS, FREQUENCY_OPTIONS } from '@/types/anketa'
 import WaveFilter from '@/components/admin/WaveFilter'
 
-export const metadata: Metadata = { title: 'Statistika | Admin' }
+export const metadata: Metadata = { title: 'Статистика | ДиагКомп-Рус' }
 export const dynamic = 'force-dynamic'
 
 const supabase = createClient(
@@ -37,9 +37,9 @@ export default async function StatsPage({
   if (fetchError) {
     return (
       <div className="max-w-4xl">
-        <h1 className="text-xl font-bold text-gray-900 mb-4">Statistika</h1>
+        <h1 className="text-xl font-bold text-gray-900 mb-4">Статистика</h1>
         <div className="bg-red-50 border border-red-200 rounded-xl p-5">
-          <p className="text-sm font-semibold text-red-700 mb-1">Supabase xatosi</p>
+          <p className="text-sm font-semibold text-red-700 mb-1">Ошибка Supabase</p>
           <pre className="text-xs text-red-600 whitespace-pre-wrap">{JSON.stringify(fetchError, null, 2)}</pre>
         </div>
       </div>
@@ -127,10 +127,10 @@ export default async function StatsPage({
   const allScored = rows.filter(r => r.part_b_score != null && r.part_c_score != null)
 
   const descTable = [
-    { label: 'Part A (max 20)', a: descStats(getScores(rows, 'part_a_score')) },
-    { label: 'Part B (max 30)', a: descStats(getScores(allScored, 'part_b_score')) },
-    { label: 'Part C (max 50)', a: descStats(getScores(allScored, 'part_c_score')) },
-    { label: 'Jami (max 100)',  a: descStats(getScores(allScored, 'total_score')) },
+    { label: 'Часть А (макс. 20)', a: descStats(getScores(rows, 'part_a_score')) },
+    { label: 'Часть Б (макс. 30)', a: descStats(getScores(allScored, 'part_b_score')) },
+    { label: 'Часть В (макс. 50)', a: descStats(getScores(allScored, 'part_c_score')) },
+    { label: 'Итого (макс. 100)',  a: descStats(getScores(allScored, 'total_score')) },
   ]
 
   // --- 6. Cronbach's alpha (Likert, 6 ta element) ---
@@ -161,11 +161,11 @@ export default async function StatsPage({
     : null
 
   function alphaLabel(a: number) {
-    if (a >= 0.9) return "A'joyib (≥0.90)"
-    if (a >= 0.8) return 'Yaxshi (0.80–0.89)'
-    if (a >= 0.7) return 'Qabul qilinadi (0.70–0.79)'
-    if (a >= 0.6) return "So'roqli (0.60–0.69)"
-    return 'Yomon (<0.60)'
+    if (a >= 0.9) return 'Отлично (≥0.90)'
+    if (a >= 0.8) return 'Хорошо (0.80–0.89)'
+    if (a >= 0.7) return 'Приемлемо (0.70–0.79)'
+    if (a >= 0.6) return 'Сомнительно (0.60–0.69)'
+    return 'Неудовлетворительно (<0.60)'
   }
 
   // --- 7. Pearson korrelyatsiya (Likert o'rtachasi vs Part A/B/C/Jami) ---
@@ -210,11 +210,11 @@ export default async function StatsPage({
 
   function corrLabel(r: number) {
     const a = Math.abs(r)
-    const dir = r > 0 ? 'musbat' : 'manfiy'
-    if (a >= 0.7) return `Kuchli ${dir}`
-    if (a >= 0.4) return `O'rtacha ${dir}`
-    if (a >= 0.2) return `Zaif ${dir}`
-    return 'Deyarli yo\'q'
+    const dir = r > 0 ? 'положительная' : 'отрицательная'
+    if (a >= 0.7) return `Сильная ${dir}`
+    if (a >= 0.4) return `Умеренная ${dir}`
+    if (a >= 0.2) return `Слабая ${dir}`
+    return 'Практически отсутствует'
   }
 
   // --- 8. Universitetlar va kurslar bo'yicha solishtirma jadval ---
@@ -222,7 +222,7 @@ export default async function StatsPage({
   function groupStats(arr: any[], keyFn: (r: any) => string) {
     const map: Record<string, { scored: any[]; total: number }> = {}
     arr.forEach(r => {
-      const k = keyFn(r) || "Noma'lum"
+      const k = keyFn(r) || 'Неизвестный'
       if (!map[k]) map[k] = { scored: [], total: 0 }
       map[k].total++
       if (r.part_b_score != null && r.part_c_score != null) map[k].scored.push(r)
@@ -254,10 +254,10 @@ export default async function StatsPage({
       {/* Sarlavha */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-gray-900">Statistika</h1>
+          <h1 className="text-xl font-bold text-gray-900">Статистика</h1>
           <p className="text-sm text-gray-500 mt-0.5">
-            Jami respondentlar: <strong>{total}</strong>
-            {avgTotal != null && <> · O&apos;rtacha umumiy ball: <strong>{avgTotal}/100</strong></>}
+            Всего респондентов: <strong>{total}</strong>
+            {avgTotal != null && <> · Средний итоговый балл: <strong>{avgTotal}/100</strong></>}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -272,16 +272,16 @@ export default async function StatsPage({
       </div>
 
       {/* Tavsifiy statistika */}
-      <Card title="1. Tavsifiy statistika (dissertatsiya jadvali)">
+      <Card title="1. Описательная статистика (таблица для диссертации)">
         <p className="text-xs text-gray-500 bg-gray-50 rounded-lg px-3 py-2 mb-4 leading-relaxed">
-          N — respondentlar soni · M — o'rtacha · SD — standart og'ish · Me — median.
-          Part B va C faqat baholangan respondentlar uchun.
+          N — количество респондентов · M — среднее · SD — стандартное отклонение · Me — медиана.
+          Части Б и В — только для оценённых респондентов.
         </p>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-100">
-                <th className="text-left py-2 pr-4 text-xs font-medium text-gray-500">Ko'rsatkich</th>
+                <th className="text-left py-2 pr-4 text-xs font-medium text-gray-500">Показатель</th>
                 <th className="text-center py-2 px-2 text-xs font-medium text-gray-500">N</th>
                 <th className="text-center py-2 px-2 text-xs font-medium text-gray-500">Min</th>
                 <th className="text-center py-2 px-2 text-xs font-medium text-gray-500">Max</th>
@@ -304,7 +304,7 @@ export default async function StatsPage({
                       <td className="py-2.5 px-2 text-center text-gray-600">{a.median}</td>
                     </>
                   ) : (
-                    <td colSpan={6} className="py-2.5 px-2 text-center text-gray-300 text-xs">Ma'lumot yo'q</td>
+                    <td colSpan={6} className="py-2.5 px-2 text-center text-gray-300 text-xs">Нет данных</td>
                   )}
                 </tr>
               ))}
@@ -314,13 +314,13 @@ export default async function StatsPage({
       </Card>
 
       {/* Cronbach alpha */}
-      <Card title="2. Cronbach's α — Likert shkalasi ichki izchilligi">
+      <Card title="2. α Кронбаха — внутренняя согласованность шкалы Ликерта">
         <p className="text-xs text-gray-500 bg-gray-50 rounded-lg px-3 py-2 mb-4 leading-relaxed">
-          6 ta o'z-o'zini baholash savolining bir-birini qanchalik yaxshi o'lchashini ko'rsatadi.
-          Dissertatsiya metodologiyasida α ≥ 0.70 talab qilinadi.
+          Показывает, насколько хорошо 6 вопросов самооценки измеряют одно и то же.
+          В методологии диссертации требуется α ≥ 0.70.
         </p>
         {alpha == null ? (
-          <p className="text-sm text-gray-400">Hisoblash uchun kamida 2 ta to'liq Likert javobi kerak</p>
+          <p className="text-sm text-gray-400">Для вычисления необходимо минимум 2 полных ответа по Ликерту</p>
         ) : (
           <div className="flex items-center gap-6">
             <div>
@@ -337,32 +337,32 @@ export default async function StatsPage({
           </div>
         )}
         <p className="text-xs text-gray-400 mt-4">
-          Talqin: ≥0.90 — a'joyib · 0.80–0.89 — yaxshi · 0.70–0.79 — qabul qilinadi · &lt;0.70 — takomillashtirish kerak
+          Интерпретация: ≥0.90 — отлично · 0.80–0.89 — хорошо · 0.70–0.79 — приемлемо · &lt;0.70 — нужно улучшение
         </p>
       </Card>
 
       {/* Korrelyatsiya */}
-      <Card title="3. Pearson r — O'z-o'zini baholash (Likert) va test natijalari korrelyatsiyasi">
+      <Card title="3. Коэффициент Пирсона r — корреляция самооценки (Ликерт) и результатов теста">
         <p className="text-xs text-gray-500 bg-gray-50 rounded-lg px-3 py-2 mb-4 leading-relaxed">
-          Likert o'rtachasi bilan har bir test qismi o'rtasidagi bog'liqlik kuchi.
-          Kuchli musbat korrelyatsiya — o'z-o'zini baholash real bilimni aks ettiradi.
-          Faqat to'liq baholangan respondentlar ({corrRows.length} ta) hisobga olingan.
+          Сила связи между средним по шкале Ликерта и каждой частью теста.
+          Сильная положительная корреляция означает, что самооценка отражает реальные знания.
+          Учтены только полностью оценённые респонденты ({corrRows.length}).
         </p>
         {corrRows.length < 3 ? (
-          <p className="text-sm text-gray-400">Korrelyatsiya uchun kamida 3 ta baholangan respondent kerak</p>
+          <p className="text-sm text-gray-400">Для корреляции необходимо минимум 3 оценённых респондента</p>
         ) : (
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-100">
-                <th className="text-left py-2 text-xs font-medium text-gray-500">Ko'rsatkich</th>
+                <th className="text-left py-2 text-xs font-medium text-gray-500">Показатель</th>
                 <th className="text-center py-2 text-xs font-medium text-indigo-600">r</th>
-                <th className="text-left py-2 pl-4 text-xs font-medium text-gray-500">Talqin</th>
+                <th className="text-left py-2 pl-4 text-xs font-medium text-gray-500">Интерпретация</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
               {corrTable.map(({ label, r }) => (
                 <tr key={label}>
-                  <td className="py-2.5 text-gray-700">Likert avg → {label}</td>
+                  <td className="py-2.5 text-gray-700">Ликерт (ср.) → {label}</td>
                   <td className={`py-2.5 text-center text-base ${r != null ? corrColor(r) : 'text-gray-300'}`}>
                     {r != null ? r : '—'}
                   </td>
@@ -375,25 +375,24 @@ export default async function StatsPage({
           </table>
         )}
         <p className="text-xs text-gray-400 mt-4">
-          |r| talqini: ≥0.70 kuchli · 0.40–0.69 o'rtacha · 0.20–0.39 zaif · &lt;0.20 deyarli yo'q
+          Интерпретация |r|: ≥0.70 — сильная · 0.40–0.69 — умеренная · 0.20–0.39 — слабая · &lt;0.20 — практически отсутствует
         </p>
       </Card>
 
       {/* Daraja taqsimoti */}
-      <Card title="4. Darajalar bo'yicha taqsimot">
+      <Card title="4. Распределение по уровням">
         <p className="text-xs text-gray-500 bg-gray-50 rounded-lg px-3 py-2 mb-4 leading-relaxed">
-          {'Har bir respondentning test natijalari asosida '}
-          <strong>uch daraja</strong>
-          {' belgilanadi: '}
-          <span className="text-green-700 font-medium">Юқори (80–100 балл)</span>
+          По результатам теста каждому респонденту присваивается один из{' '}
+          <strong>трёх уровней</strong>:{' '}
+          <span className="text-green-700 font-medium">Высокий (80–100 баллов)</span>
           {', '}
-          <span className="text-yellow-700 font-medium">Ўрта (50–79)</span>
+          <span className="text-yellow-700 font-medium">Средний (50–79)</span>
           {', '}
-          <span className="text-red-600 font-medium">Паст (0–49)</span>
-          {'. Daraja faqat Part B va Part C baholangandan keyin hisoblanadi — shuning uchun baholanmagan respondentlar bu jadvalda ko\'rinmaydi.'}
+          <span className="text-red-600 font-medium">Низкий (0–49)</span>
+          {'. Уровень определяется только после оценивания частей Б и В — неоценённые респонденты в таблице не отображаются.'}
         </p>
         {total === 0 ? (
-          <p className="text-sm text-gray-400">Ma'lumot yo'q</p>
+          <p className="text-sm text-gray-400">Нет данных</p>
         ) : (
           <div className="space-y-3">
             {Object.entries(levelMap).map(([level, count]) => {
@@ -415,7 +414,7 @@ export default async function StatsPage({
             })}
             {unscored > 0 && (
               <p className="text-xs text-gray-400 pt-1">
-                Hali baholanmagan: {unscored} ta respondent (yuqoridagi foizlarga kirmaydi)
+                Ещё не оценено: {unscored} респондентов (не включены в проценты выше)
               </p>
             )}
           </div>
@@ -423,33 +422,32 @@ export default async function StatsPage({
       </Card>
 
       {/* Universitetlar solishtirma jadvali */}
-      <Card title="5. Universitetlar bo'yicha solishtirma jadval">
+      <Card title="5. Сравнительная таблица по университетам">
         <p className="text-xs text-gray-500 bg-gray-50 rounded-lg px-3 py-2 mb-4">
-          Faqat to'liq baholangan respondentlar uchun M va SD hisoblanadi. N — jami respondentlar.
+          M и SD вычисляются только для полностью оценённых респондентов. N — общее количество.
         </p>
         <CompareTable groups={univGroups} />
       </Card>
 
       {/* Kurslar solishtirma jadvali */}
-      <Card title="6. Kurslar bo'yicha solishtirma jadval">
+      <Card title="6. Сравнительная таблица по курсам">
         <CompareTable groups={courseGroups} />
       </Card>
 
       {/* Blok II o'rtacha */}
-      <Card title="7. Блок II — O'z-o'zini baholash (Likert, 1–5)">
+      <Card title="7. Блок II — Самооценка (шкала Ликерта, 1–5)">
         <p className="text-xs text-gray-500 bg-gray-50 rounded-lg px-3 py-2 mb-4 leading-relaxed">
-          {"Anketaning II blokida talabalar "}
-          <strong>raqamli vositalarni qanchalik egallashini</strong>
-          {" o'zlari baholagan: "}
+          В блоке II анкеты студенты самостоятельно оценивали{' '}
+          <strong>уровень владения цифровыми инструментами</strong>:{' '}
           <strong>1</strong>
-          {" — umuman bilmayman, "}
+          {' — совсем не знаю, '}
           <strong>5</strong>
-          {" — juda yaxshi bilaman. Quyida har bir ifoda bo'yicha barcha respondentlarning "}
-          <strong>o'rtacha bali</strong>
-          {" ko'rsatilgan. Chiziq uzunligi 5 ballik shkalaga nisbatan — uzunroq = yuqoriroq o'z-o'zini baholash."}
+          {' — знаю очень хорошо. Ниже показан '}
+          <strong>средний балл</strong>
+          {' по каждому утверждению. Длина полосы пропорциональна шкале 1–5: чем длиннее — тем выше самооценка.'}
         </p>
         {total === 0 ? (
-          <p className="text-sm text-gray-400">Ma'lumot yo'q</p>
+          <p className="text-sm text-gray-400">Нет данных</p>
         ) : (
           <div className="space-y-4">
             {b2Avgs.map(({ stmt, avg, count }, i) => (
@@ -464,7 +462,7 @@ export default async function StatsPage({
                     style={{ width: `${(avg / 5) * 100}%` }}
                   />
                 </div>
-                <p className="text-xs text-gray-400 mt-0.5">{count} ta javob asosida</p>
+                <p className="text-xs text-gray-400 mt-0.5">На основе {count} ответов</p>
               </div>
             ))}
           </div>
@@ -472,12 +470,12 @@ export default async function StatsPage({
       </Card>
 
       {/* Blok III chastota */}
-      <Card title="8. Блок III — Raqamli vositalar ishlatish chastotasi">
+      <Card title="8. Блок III — Частота использования цифровых инструментов">
         <p className="text-xs text-gray-500 bg-gray-50 rounded-lg px-3 py-2 mb-5 leading-relaxed">
-          Har bir vosita bo'yicha respondentlar qanchalik tez-tez foydalanishini ko'rsatadi.
+          Показывает, как часто респонденты используют каждый инструмент.
         </p>
         {total === 0 ? (
-          <p className="text-sm text-gray-400">Ma'lumot yo'q</p>
+          <p className="text-sm text-gray-400">Нет данных</p>
         ) : (
           <div className="space-y-6">
             {freqStats.map(({ tool, dist }) => (
@@ -509,16 +507,16 @@ export default async function StatsPage({
       </Card>
 
       {/* Blok IV qiyinchiliklar */}
-      <Card title="9. Блок IV — Raqamli vositalardan foydalanishdagi qiyinchiliklar">
+      <Card title="9. Блок IV — Трудности при использовании цифровых инструментов">
         <p className="text-xs text-gray-500 bg-gray-50 rounded-lg px-3 py-2 mb-4 leading-relaxed">
-          {"Talabalar bir vaqtda "}
-          <strong>bir nechta qiyinchilikni</strong>
-          {" belgilashi mumkin edi. Quyidagi foizlar har bir qiyinlikni "}
-          <strong>necha foiz respondent belgilaganini</strong>
-          {" ko'rsatadi. Foiz yuqori bo'lsa, bu muammo ko'pchilik uchun keng tarqalgan degani."}
+          Студенты могли отмечать{' '}
+          <strong>несколько затруднений</strong>
+          {' одновременно. Приведённые проценты показывают, '}
+          <strong>какой процент респондентов указал каждое затруднение</strong>
+          {'. Высокий процент означает, что проблема распространена среди большинства.'}
         </p>
         {total === 0 ? (
-          <p className="text-sm text-gray-400">Ma'lumot yo'q</p>
+          <p className="text-sm text-gray-400">Нет данных</p>
         ) : (
           <div className="space-y-3">
             {diffStats
@@ -564,20 +562,20 @@ type GroupRow = {
 }
 
 function CompareTable({ groups }: { groups: GroupRow[] }) {
-  if (groups.length === 0) return <p className="text-sm text-gray-400">Ma'lumot yo'q</p>
+  if (groups.length === 0) return <p className="text-sm text-gray-400">Нет данных</p>
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-gray-100">
-            <th className="text-left py-2 pr-3 text-xs font-medium text-gray-500">Guruh</th>
+            <th className="text-left py-2 pr-3 text-xs font-medium text-gray-500">Группа</th>
             <th className="text-center py-2 px-2 text-xs font-medium text-gray-500">N</th>
-            <th className="text-center py-2 px-2 text-xs font-medium text-gray-500">Bah.</th>
+            <th className="text-center py-2 px-2 text-xs font-medium text-gray-500">Оц.</th>
             <th className="text-center py-2 px-2 text-xs font-medium text-indigo-600">M</th>
             <th className="text-center py-2 px-2 text-xs font-medium text-gray-500">SD</th>
-            <th className="text-center py-2 px-2 text-xs font-medium text-green-600">Yuk.</th>
-            <th className="text-center py-2 px-2 text-xs font-medium text-yellow-600">O'rt.</th>
-            <th className="text-center py-2 px-2 text-xs font-medium text-red-500">Past</th>
+            <th className="text-center py-2 px-2 text-xs font-medium text-green-600">Выс.</th>
+            <th className="text-center py-2 px-2 text-xs font-medium text-yellow-600">Ср.</th>
+            <th className="text-center py-2 px-2 text-xs font-medium text-red-500">Низ.</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-50">
@@ -596,7 +594,7 @@ function CompareTable({ groups }: { groups: GroupRow[] }) {
         </tbody>
       </table>
       <p className="text-xs text-gray-400 mt-2">
-        N — jami · Bah. — baholangan · M — o'rtacha jami ball · SD — standart og'ish · Yuk./O'rt./Past — darajalar soni
+        N — всего · Оц. — оценено · M — средний итоговый балл · SD — стандартное отклонение · Выс./Ср./Низ. — количество по уровням
       </p>
     </div>
   )
