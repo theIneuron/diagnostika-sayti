@@ -24,6 +24,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           >
             Statistika
           </Link>
+          <Link
+            href="/admin/charts"
+            className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"
+          >
+            Diagrammalar
+          </Link>
         </nav>
 
         <div className="p-3 border-t border-gray-200">
