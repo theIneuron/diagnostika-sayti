@@ -52,19 +52,18 @@ export default async function RespondentsPage({
   const from = (page - 1) * PAGE_SIZE
   const to   = from + PAGE_SIZE - 1
 
-  function applyFilters<T>(q: T & { eq: (...a: unknown[]) => T; ilike: (...a: unknown[]) => T; or: (...a: unknown[]) => T }): T {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let r = q as any
-    if (wave)         r = r.eq('wave', Number(wave))
-    if (university)   r = r.ilike('university', `%${university}%`)
-    if (course)       r = r.eq('course', course)
-    if (onlyUnscored) r = r.or('part_b_score.is.null,part_c_score.is.null')
-    return r
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function withFilters(q: any): any {
+    if (wave)         q = q.eq('wave', Number(wave))
+    if (university)   q = q.ilike('university', `%${university}%`)
+    if (course)       q = q.eq('course', course)
+    if (onlyUnscored) q = q.or('part_b_score.is.null,part_c_score.is.null')
+    return q
   }
 
   const [{ count: totalCount }, { data }] = await Promise.all([
-    applyFilters(supabase.from('respondents').select('*', { count: 'exact', head: true })),
-    applyFilters(
+    withFilters(supabase.from('respondents').select('*', { count: 'exact', head: true })),
+    withFilters(
       supabase
         .from('respondents')
         .select('id, created_at, wave, university, course, part_a_score, part_b_score, part_c_score, total_score, level')
@@ -75,7 +74,8 @@ export default async function RespondentsPage({
   const total = totalCount ?? 0
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
 
-  const rows = (data ?? []).map(r => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const rows = (data ?? []).map((r: any) => {
     if (r.part_b_score != null && r.part_c_score != null) {
       const t = Math.round(((r.part_a_score ?? 0) + r.part_b_score + r.part_c_score) * 100) / 100
       return {
@@ -87,7 +87,8 @@ export default async function RespondentsPage({
     return r
   })
 
-  const scoredCount   = rows.filter(r => r.part_b_score !== null && r.part_c_score !== null).length
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const scoredCount   = rows.filter((r: any) => r.part_b_score !== null && r.part_c_score !== null).length
   const unscoredCount = rows.length - scoredCount
 
   const filters = { wave, university, course, unscored }
@@ -112,7 +113,8 @@ export default async function RespondentsPage({
         <div>
           <h1 className="text-xl font-bold text-gray-900">Respondentlar</h1>
           <p className="text-sm text-gray-500 mt-0.5">
-            Jami: {rows.length} · Baholangan: {scoredCount} · Baholanmagan: {unscoredCount}
+            Jami: {total} · Baholangan: {scoredCount} · Baholanmagan: {unscoredCount}
+            {totalPages > 1 && <> · Sahifa {page}/{totalPages}</>}
           </p>
         </div>
         <div className="flex gap-2">
@@ -213,9 +215,10 @@ export default async function RespondentsPage({
                 </td>
               </tr>
             )}
-            {rows.map((r, i) => (
+            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+            {rows.map((r: any, i: number) => (
               <tr key={r.id} className="hover:bg-gray-50 transition-colors">
-                <td className="px-4 py-3 text-gray-400">{i + 1}</td>
+                <td className="px-4 py-3 text-gray-400">{from + i + 1}</td>
                 <td className="px-4 py-3 text-gray-700 max-w-[180px] truncate">
                   <Link href={`/admin/respondents/${r.id}`} className="hover:text-indigo-600 hover:underline">
                     {r.university ?? '—'}
@@ -252,6 +255,54 @@ export default async function RespondentsPage({
           </tbody>
         </table>
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between mt-4">
+          <p className="text-xs text-gray-500">
+            {from + 1}–{Math.min(to + 1, total)} / {total} ta
+          </p>
+          <div className="flex items-center gap-1">
+            {page > 1 && (
+              <Link
+                href={`/admin/respondents${buildQuery({ ...filters, sort, dir, page: String(page - 1) })}`}
+                className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50"
+              >
+                ← Oldingi
+              </Link>
+            )}
+            {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
+              let p: number
+              if (totalPages <= 7) {
+                p = i + 1
+              } else if (page <= 4) {
+                p = i + 1
+              } else if (page >= totalPages - 3) {
+                p = totalPages - 6 + i
+              } else {
+                p = page - 3 + i
+              }
+              return (
+                <Link
+                  key={p}
+                  href={`/admin/respondents${buildQuery({ ...filters, sort, dir, page: String(p) })}`}
+                  className={`px-3 py-1.5 text-sm border rounded-lg ${p === page ? 'bg-indigo-600 border-indigo-600 text-white font-medium' : 'border-gray-300 text-gray-600 hover:bg-gray-50'}`}
+                >
+                  {p}
+                </Link>
+              )
+            })}
+            {page < totalPages && (
+              <Link
+                href={`/admin/respondents${buildQuery({ ...filters, sort, dir, page: String(page + 1) })}`}
+                className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg text-gray-600 hover:bg-gray-50"
+              >
+                Keyingi →
+              </Link>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
