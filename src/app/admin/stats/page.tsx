@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { LIKERT_STATEMENTS, DIFFICULTY_OPTIONS, FREQUENCY_TOOLS, FREQUENCY_OPTIONS } from '@/types/anketa'
 import WaveFilter from '@/components/admin/WaveFilter'
 
@@ -248,7 +249,15 @@ export default async function StatsPage({
             {avgTotal != null && <> · O&apos;rtacha umumiy ball: <strong>{avgTotal}/100</strong></>}
           </p>
         </div>
-        <WaveFilter defaultValue={wave ?? ''} basePath="/admin/stats" />
+        <div className="flex items-center gap-2">
+          <WaveFilter defaultValue={wave ?? ''} basePath="/admin/stats" />
+          <Link
+            href={`/admin/stats/export${wave ? `?wave=${wave}` : ''}`}
+            className="px-3 py-1.5 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors"
+          >
+            Excel
+          </Link>
+        </div>
       </div>
 
       {/* Tavsifiy statistika */}
