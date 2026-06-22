@@ -28,12 +28,14 @@ export async function scoreRespondent(
     .eq('id', id)
     .single()
 
-  const totalScore = Math.round(((data?.part_a_score ?? 0) + partBScore + partCScore) * 100) / 100
+  // total_score — generated column, uni qo'lda yozib bo'lmaydi (DB o'zi hisoblaydi)
+  const partAScore = data?.part_a_score ?? 0
+  const totalScore = partAScore + partBScore + partCScore
   const level = totalScore >= 80 ? 'Высокий' : totalScore >= 50 ? 'Средний' : 'Низкий'
 
   const { error } = await supabase
     .from('respondents')
-    .update({ part_b_score: partBScore, part_c_score: partCScore, total_score: totalScore, level })
+    .update({ part_b_score: partBScore, part_c_score: partCScore, level })
     .eq('id', id)
 
   if (error) {
