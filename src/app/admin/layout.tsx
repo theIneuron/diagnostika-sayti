@@ -22,7 +22,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             href="/admin/respondents"
             className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"
           >
-            Респонденты
+            Анкетируемые
           </Link>
           <Link
             href="/admin/stats"

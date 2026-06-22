@@ -71,7 +71,7 @@ export default async function AdminDashboard() {
 
       {/* KPI cards */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <KpiCard label="Всего респондентов" value={String(total)} sub={`Волна 1: ${wave1} · 2: ${wave2}`} color="indigo" />
+        <KpiCard label="Всего анкетируемых" value={String(total)} sub={`Волна 1: ${wave1} · 2: ${wave2}`} color="indigo" />
         <KpiCard label="Оценено" value={String(scored.length)} sub={`${total > 0 ? Math.round(scored.length / total * 100) : 0}% завершено`} color="green" />
         <KpiCard label="Не оценено" value={String(unscored)} sub={unscored > 0 ? 'Требует внимания' : 'Все готово'} color={unscored > 0 ? 'orange' : 'gray'} />
         <KpiCard label="Среднее" value={avgScore != null ? `${avgScore}` : '—'} sub="/ 100 (по оценённым)" color="purple" />
@@ -82,7 +82,7 @@ export default async function AdminDashboard() {
         <div className="bg-white rounded-xl border border-gray-200 p-5">
           <h2 className="text-sm font-semibold text-gray-700 mb-4">Распределение по уровням</h2>
           {scored.length === 0 ? (
-            <p className="text-sm text-gray-400">Нет оценённых респондентов</p>
+            <p className="text-sm text-gray-400">Нет оценённых анкетируемых</p>
           ) : (
             <div className="space-y-3">
               {Object.entries(levelCounts).map(([lv, cnt]) => {
@@ -142,7 +142,7 @@ export default async function AdminDashboard() {
           )}
         </div>
         {recent.length === 0 ? (
-          <p className="text-sm text-gray-400">Нет респондентов</p>
+          <p className="text-sm text-gray-400">Нет анкетируемых</p>
         ) : (
           <div className="divide-y divide-gray-50">
             {recent.map(r => (
@@ -171,7 +171,7 @@ export default async function AdminDashboard() {
         )}
         <div className="mt-3 pt-3 border-t border-gray-100">
           <Link href="/admin/respondents" className="text-xs text-indigo-600 hover:underline">
-            Все {total} респондентов →
+            Все {total} анкетируемых →
           </Link>
         </div>
       </div>

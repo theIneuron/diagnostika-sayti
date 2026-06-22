@@ -2,7 +2,7 @@ import { createClient } from '@supabase/supabase-js'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 
-export const metadata: Metadata = { title: 'Респонденты | ДиагКомп-Рус' }
+export const metadata: Metadata = { title: 'Анкетируемые | ДиагКомп-Рус' }
 export const dynamic = 'force-dynamic'
 
 function buildQuery(params: Record<string, string | undefined>) {
@@ -111,7 +111,7 @@ export default async function RespondentsPage({
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl font-bold text-gray-900">Респонденты</h1>
+          <h1 className="text-xl font-bold text-gray-900">Анкетируемые</h1>
           <p className="text-sm text-gray-500 mt-0.5">
             Всего: {total} · Оценено: {scoredCount} · Не оценено: {unscoredCount}
             {totalPages > 1 && <> · Страница {page}/{totalPages}</>}
@@ -219,7 +219,7 @@ export default async function RespondentsPage({
             {rows.length === 0 && (
               <tr>
                 <td colSpan={10} className="text-center py-10 text-gray-400">
-                  Нет респондентов
+                  Нет анкетируемых
                 </td>
               </tr>
             )}
