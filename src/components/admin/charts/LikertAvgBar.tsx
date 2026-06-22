@@ -7,7 +7,7 @@ import {
 interface LikertItem { q: string; label: string; avg: number; n: number }
 
 export default function LikertAvgBar({ data }: { data: LikertItem[] }) {
-  if (!data.length) return <p className="text-sm text-gray-400 py-4 text-center">Ma'lumot yo'q</p>
+  if (!data.length) return <p className="text-sm text-gray-400 py-4 text-center">Нет данных</p>
 
   return (
     <ResponsiveContainer width="100%" height={data.length * 42 + 40}>
@@ -22,7 +22,7 @@ export default function LikertAvgBar({ data }: { data: LikertItem[] }) {
             props.payload?.label ?? '',
           ]}
         />
-        <ReferenceLine x={3} stroke="#9ca3af" strokeDasharray="4 2" label={{ value: "O'rta", position: 'top', fontSize: 10, fill: '#6b7280' }} />
+        <ReferenceLine x={3} stroke="#9ca3af" strokeDasharray="4 2" label={{ value: 'Среднее', position: 'top', fontSize: 10, fill: '#6b7280' }} />
         <Bar dataKey="avg" radius={[0, 4, 4, 0]} maxBarSize={26}>
           {data.map(d => (
             <Cell key={d.q} fill={d.avg >= 4 ? '#6366f1' : d.avg >= 3 ? '#a78bfa' : '#f87171'} />

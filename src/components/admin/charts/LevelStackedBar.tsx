@@ -8,7 +8,7 @@ import {
 type Row = { univ: string; Высокий?: number; Средний?: number; Низкий?: number }
 
 function Empty() {
-  return <p className="text-sm text-gray-400 py-8 text-center">Baholangan respondentlar yo'q</p>
+  return <p className="text-sm text-gray-400 py-8 text-center">Нет оценённых респондентов</p>
 }
 
 export default function LevelStackedBar({ data }: { data: Row[] }) {

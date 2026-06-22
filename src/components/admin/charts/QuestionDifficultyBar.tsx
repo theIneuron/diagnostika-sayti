@@ -8,7 +8,7 @@ import {
 type Row = { q: string; label: string; pct: number; correct: number; total: number }
 
 function Empty() {
-  return <p className="text-sm text-gray-400 py-8 text-center">Ma'lumot yo'q</p>
+  return <p className="text-sm text-gray-400 py-8 text-center">Нет данных</p>
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -18,7 +18,7 @@ function CustomTooltip({ active, payload }: { active?: boolean; payload?: any[] 
   return (
     <div style={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: 8, padding: '8px 12px', fontSize: 12, boxShadow: '0 1px 4px rgba(0,0,0,0.08)', maxWidth: 260 }}>
       <p style={{ fontWeight: 600, marginBottom: 4 }}>{d.q}. {d.label}</p>
-      <p>To'g'ri javob: {d.correct} / {d.total} ({d.pct}%)</p>
+      <p>Верных ответов: {d.correct} / {d.total} ({d.pct}%)</p>
     </div>
   )
 }

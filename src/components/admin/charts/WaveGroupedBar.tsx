@@ -17,7 +17,7 @@ type Props = {
 }
 
 function Empty() {
-  return <p className="text-sm text-gray-400 py-8 text-center">Ma'lumot yo'q</p>
+  return <p className="text-sm text-gray-400 py-8 text-center">Нет данных</p>
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -49,8 +49,8 @@ export default function WaveGroupedBar({
           <YAxis type="category" dataKey="label" tick={{ fontSize: 10 }} width={96} />
           <Tooltip content={<CustomTooltip />} />
           <Legend iconType="circle" iconSize={10} wrapperStyle={{ fontSize: 12 }} />
-          <Bar dataKey="wave1" name="To'lqin 1" fill="#6366f1" maxBarSize={14} radius={[0, 3, 3, 0]} />
-          <Bar dataKey="wave2" name="To'lqin 2" fill="#a855f7" maxBarSize={14} radius={[0, 3, 3, 0]} />
+          <Bar dataKey="wave1" name="Волна 1" fill="#6366f1" maxBarSize={14} radius={[0, 3, 3, 0]} />
+          <Bar dataKey="wave2" name="Волна 2" fill="#a855f7" maxBarSize={14} radius={[0, 3, 3, 0]} />
         </BarChart>
       </ResponsiveContainer>
     )
@@ -64,8 +64,8 @@ export default function WaveGroupedBar({
         <YAxis domain={[0, yMax ?? 'auto']} tick={{ fontSize: 11 }} />
         <Tooltip content={<CustomTooltip />} />
         <Legend iconType="circle" iconSize={10} wrapperStyle={{ fontSize: 12 }} />
-        <Bar dataKey="wave1" name="To'lqin 1" fill="#6366f1" maxBarSize={36} radius={[4, 4, 0, 0]} />
-        <Bar dataKey="wave2" name="To'lqin 2" fill="#a855f7" maxBarSize={36} radius={[4, 4, 0, 0]} />
+        <Bar dataKey="wave1" name="Волна 1" fill="#6366f1" maxBarSize={36} radius={[4, 4, 0, 0]} />
+        <Bar dataKey="wave2" name="Волна 2" fill="#a855f7" maxBarSize={36} radius={[4, 4, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>
   )

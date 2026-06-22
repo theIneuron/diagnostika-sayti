@@ -8,7 +8,7 @@ import {
 type Row = { univ: string; partA: number; partB: number; partC: number }
 
 function Empty() {
-  return <p className="text-sm text-gray-400 py-8 text-center">Baholangan respondentlar yo'q</p>
+  return <p className="text-sm text-gray-400 py-8 text-center">Нет оценённых респондентов</p>
 }
 
 export default function PartScoresBar({ data }: { data: Row[] }) {
@@ -21,9 +21,9 @@ export default function PartScoresBar({ data }: { data: Row[] }) {
         <YAxis tick={{ fontSize: 11 }} />
         <Tooltip />
         <Legend iconType="circle" iconSize={10} wrapperStyle={{ fontSize: 12 }} />
-        <Bar dataKey="partA" name="A qismi (max 20)" fill="#6366f1" radius={[4, 4, 0, 0]} maxBarSize={28} />
-        <Bar dataKey="partB" name="B qismi (max 30)" fill="#f97316" radius={[4, 4, 0, 0]} maxBarSize={28} />
-        <Bar dataKey="partC" name="V qismi (max 50)" fill="#14b8a6" radius={[4, 4, 0, 0]} maxBarSize={28} />
+        <Bar dataKey="partA" name="Часть А (макс. 20)" fill="#6366f1" radius={[4, 4, 0, 0]} maxBarSize={28} />
+        <Bar dataKey="partB" name="Часть Б (макс. 30)" fill="#f97316" radius={[4, 4, 0, 0]} maxBarSize={28} />
+        <Bar dataKey="partC" name="Часть В (макс. 50)" fill="#14b8a6" radius={[4, 4, 0, 0]} maxBarSize={28} />
       </BarChart>
     </ResponsiveContainer>
   )

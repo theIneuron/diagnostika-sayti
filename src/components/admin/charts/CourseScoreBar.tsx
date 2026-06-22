@@ -8,7 +8,7 @@ import {
 type Row = { course: string; avg: number; count: number }
 
 function Empty() {
-  return <p className="text-sm text-gray-400 py-8 text-center">Baholangan respondentlar yo'q</p>
+  return <p className="text-sm text-gray-400 py-8 text-center">Нет оценённых респондентов</p>
 }
 
 export default function CourseScoreBar({ data }: { data: Row[] }) {
@@ -20,7 +20,7 @@ export default function CourseScoreBar({ data }: { data: Row[] }) {
         <XAxis dataKey="course" tick={{ fontSize: 12 }} />
         <YAxis domain={[0, 100]} tick={{ fontSize: 11 }} />
         <Tooltip
-          formatter={(v) => [`${v} ball`, "O'rtacha"]}
+          formatter={(v) => [`${v} балл`, 'Среднее']}
           labelFormatter={(l) => `${l} (n=${data.find(d => d.course === String(l))?.count ?? ''})`}
         />
         <Bar dataKey="avg" fill="#8b5cf6" radius={[4, 4, 0, 0]} maxBarSize={80}>
