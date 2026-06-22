@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 import TestForm from '@/components/test/TestForm'
 
 export const metadata: Metadata = {
-  title: 'Диагностический опрос | Тест',
+  title: 'Тест | ДиагКомп-Рус',
 }
 
 interface Props {

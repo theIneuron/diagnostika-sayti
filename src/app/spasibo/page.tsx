@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Спасибо за участие!',
+  title: 'Спасибо за участие! | ДиагКомп-Рус',
 }
 
 export default function SpasiboPage() {

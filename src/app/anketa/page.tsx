@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import AnketaForm from '@/components/anketa/AnketaForm'
 
 export const metadata: Metadata = {
-  title: 'Диагностический опрос | Анкета',
+  title: 'Анкета | ДиагКомп-Рус',
 }
 
 interface Props {
@@ -25,7 +25,7 @@ export default async function AnketaPage({ searchParams }: Props) {
           </p>
           {waveNum === 2 && (
             <span className="mt-2 inline-block px-3 py-1 text-xs font-medium bg-indigo-100 text-indigo-700 rounded-full">
-              To'lqin 2
+              Волна 2
             </span>
           )}
         </div>
