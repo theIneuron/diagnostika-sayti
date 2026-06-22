@@ -25,29 +25,60 @@ const LEVEL_COLOR: Record<string, string> = {
   'Низкий':  'bg-red-100 text-red-700',
 }
 
+const VALID_SORTS: Record<string, string> = {
+  total_score:   'total_score',
+  part_a_score:  'part_a_score',
+  part_b_score:  'part_b_score',
+  part_c_score:  'part_c_score',
+  university:    'university',
+  course:        'course',
+  created_at:    'created_at',
+}
+
 export default async function RespondentsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ wave?: string; university?: string; course?: string; unscored?: string }>
+  searchParams: Promise<{
+    wave?: string; university?: string; course?: string
+    unscored?: string; sort?: string; dir?: string
+  }>
 }) {
-  const { wave, university, course, unscored } = await searchParams
+  const { wave, university, course, unscored, sort: sortParam, dir: dirParam } = await searchParams
   const onlyUnscored = unscored === '1'
+  const sort = (sortParam && VALID_SORTS[sortParam]) ? sortParam : 'created_at'
+  const dir  = dirParam === 'asc' ? 'asc' : 'desc'
 
   let query = supabase
     .from('respondents')
     .select('id, created_at, wave, university, course, part_a_score, part_b_score, part_c_score, total_score, level')
-    .order('created_at', { ascending: false })
+    .order(VALID_SORTS[sort], { ascending: dir === 'asc' })
 
-  if (wave)          query = query.eq('wave', Number(wave))
-  if (university)    query = query.ilike('university', `%${university}%`)
-  if (course)        query = query.eq('course', course)
-  if (onlyUnscored)  query = query.or('part_b_score.is.null,part_c_score.is.null')
+  if (wave)         query = query.eq('wave', Number(wave))
+  if (university)   query = query.ilike('university', `%${university}%`)
+  if (course)       query = query.eq('course', course)
+  if (onlyUnscored) query = query.or('part_b_score.is.null,part_c_score.is.null')
 
   const { data } = await query
   const rows = data ?? []
 
   const scoredCount   = rows.filter(r => r.part_b_score !== null && r.part_c_score !== null).length
   const unscoredCount = rows.length - scoredCount
+
+  const filters = { wave, university, course, unscored }
+
+  function sortLink(col: string, label: string) {
+    const isActive = sort === col
+    const newDir   = isActive && dir === 'desc' ? 'asc' : 'desc'
+    const indicator = isActive ? (dir === 'desc' ? ' ↓' : ' ↑') : ''
+    return (
+      <Link
+        href={`/admin/respondents${buildQuery({ ...filters, sort: col, dir: newDir })}`}
+        className={`hover:text-gray-800 transition-colors ${isActive ? 'text-gray-800 font-semibold' : 'text-gray-500'}`}
+      >
+        {label}{indicator}
+      </Link>
+    )
+  }
 
   return (
     <div>
@@ -94,20 +125,12 @@ export default async function RespondentsPage({
 
       {/* Filtrlar */}
       <form className="flex flex-wrap gap-3 mb-5">
-        <select
-          name="wave"
-          defaultValue={wave ?? ''}
-          className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm"
-        >
+        <select name="wave" defaultValue={wave ?? ''} className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm">
           <option value="">Barcha to'lqinlar</option>
           <option value="1">To'lqin 1</option>
           <option value="2">To'lqin 2</option>
         </select>
-        <select
-          name="course"
-          defaultValue={course ?? ''}
-          className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm"
-        >
+        <select name="course" defaultValue={course ?? ''} className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm">
           <option value="">Barcha kurslar</option>
           <option value="3 курс">3 kurs</option>
           <option value="4 курс">4 kurs</option>
@@ -129,10 +152,7 @@ export default async function RespondentsPage({
           />
           <span className="text-sm text-gray-600">Faqat baholanmaganlar</span>
         </label>
-        <button
-          type="submit"
-          className="px-4 py-1.5 text-sm text-white bg-gray-700 rounded-lg hover:bg-gray-800"
-        >
+        <button type="submit" className="px-4 py-1.5 text-sm text-white bg-gray-700 rounded-lg hover:bg-gray-800">
           Filter
         </button>
         {(wave || university || course || onlyUnscored) && (
@@ -147,16 +167,16 @@ export default async function RespondentsPage({
         <table className="w-full text-sm">
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
-              <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase">#</th>
-              <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase">Vuz</th>
-              <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase">Kurs</th>
-              <th className="text-center px-3 py-3 text-xs font-medium text-gray-500 uppercase">T'lqin</th>
-              <th className="text-center px-3 py-3 text-xs font-medium text-gray-500 uppercase">A</th>
-              <th className="text-center px-3 py-3 text-xs font-medium text-gray-500 uppercase">B</th>
-              <th className="text-center px-3 py-3 text-xs font-medium text-gray-500 uppercase">V</th>
-              <th className="text-center px-3 py-3 text-xs font-medium text-gray-500 uppercase">Jami</th>
+              <th className="text-left px-4 py-3 text-xs uppercase">#</th>
+              <th className="text-left px-4 py-3 text-xs uppercase">{sortLink('university', 'Vuz')}</th>
+              <th className="text-left px-4 py-3 text-xs uppercase">{sortLink('course', 'Kurs')}</th>
+              <th className="text-center px-3 py-3 text-xs font-medium text-gray-500 uppercase">To'lqin</th>
+              <th className="text-center px-3 py-3 text-xs uppercase">{sortLink('part_a_score', 'A')}</th>
+              <th className="text-center px-3 py-3 text-xs uppercase">{sortLink('part_b_score', 'B')}</th>
+              <th className="text-center px-3 py-3 text-xs uppercase">{sortLink('part_c_score', 'V')}</th>
+              <th className="text-center px-3 py-3 text-xs uppercase">{sortLink('total_score', 'Jami')}</th>
               <th className="text-center px-3 py-3 text-xs font-medium text-gray-500 uppercase">Daraja</th>
-              <th className="text-left px-4 py-3 text-xs font-medium text-gray-500 uppercase">Sana</th>
+              <th className="text-left px-4 py-3 text-xs uppercase">{sortLink('created_at', 'Sana')}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
