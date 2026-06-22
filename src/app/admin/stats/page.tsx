@@ -33,7 +33,18 @@ export default async function StatsPage({
   )
   if (wave) query = query.eq('wave', Number(wave))
 
-  const { data } = await query
+  const { data, error: fetchError } = await query
+  if (fetchError) {
+    return (
+      <div className="max-w-4xl">
+        <h1 className="text-xl font-bold text-gray-900 mb-4">Statistika</h1>
+        <div className="bg-red-50 border border-red-200 rounded-xl p-5">
+          <p className="text-sm font-semibold text-red-700 mb-1">Supabase xatosi</p>
+          <pre className="text-xs text-red-600 whitespace-pre-wrap">{JSON.stringify(fetchError, null, 2)}</pre>
+        </div>
+      </div>
+    )
+  }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const rows = (data ?? []).map((r: any) => {
     // generated column level/total_score null bo'lsa JS da hisoblaymiz
