@@ -21,9 +21,9 @@ const supabase = createClient(
 
 const UNIV_SHORT: Record<string, string> = {
   [UNIVERSITIES[0]]: 'УзГУМЯ',
-  [UNIVERSITIES[1]]: 'ТГПУ им. Низами',
-  [UNIVERSITIES[2]]: 'Чирчикский ГПУ',
-  [UNIVERSITIES[3]]: 'Нукусский ГПИ',
+  [UNIVERSITIES[1]]: 'НПУ им. Низами',
+  [UNIVERSITIES[2]]: 'ФерГУ',
+  [UNIVERSITIES[3]]: 'БухГУ',
 }
 
 function shortUniv(name: string | null): string {
