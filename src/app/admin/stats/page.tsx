@@ -25,7 +25,7 @@ export default async function StatsPage({
   const { wave } = await searchParams
 
   let query = supabase.from('respondents').select(
-    'wave, level, total_score, part_a_score, ' +
+    'wave, level, total_score, part_a_score, part_b_score, part_c_score, ' +
     'b2_q1, b2_q2, b2_q3, b2_q4, b2_q5, b2_q6, ' +
     'difficulties'
   )
@@ -33,7 +33,18 @@ export default async function StatsPage({
 
   const { data } = await query
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const rows = (data ?? []) as any[]
+  const rows = (data ?? []).map((r: any) => {
+    // generated column level/total_score null bo'lsa JS da hisoblaymiz
+    if (r.part_b_score != null && r.part_c_score != null) {
+      const t = Math.round(((r.part_a_score ?? 0) + r.part_b_score + r.part_c_score) * 100) / 100
+      return {
+        ...r,
+        total_score: r.total_score ?? t,
+        level: r.level ?? (t >= 80 ? 'Высокий' : t >= 50 ? 'Средний' : 'Низкий'),
+      }
+    }
+    return r
+  }) as any[]
   const total = rows.length
 
   // --- 1. Daraja taqsimoti ---

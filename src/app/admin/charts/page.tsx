@@ -46,7 +46,17 @@ export default async function ChartsPage({
 
   const { data } = await query
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const rows = (data ?? []) as any[]
+  const rows = (data ?? []).map((r: any) => {
+    if (r.part_b_score != null && r.part_c_score != null) {
+      const t = Math.round(((r.part_a_score ?? 0) + r.part_b_score + r.part_c_score) * 100) / 100
+      return {
+        ...r,
+        total_score: r.total_score ?? t,
+        level: r.level ?? (t >= 80 ? 'Высокий' : t >= 50 ? 'Средний' : 'Низкий'),
+      }
+    }
+    return r
+  }) as any[]
 
   // --- 1. Univers bo'yicha o'rtacha umumiy ball ---
   const univScoreMap: Record<string, number[]> = {}

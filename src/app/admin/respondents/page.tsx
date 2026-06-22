@@ -40,26 +40,52 @@ export default async function RespondentsPage({
 }: {
   searchParams: Promise<{
     wave?: string; university?: string; course?: string
-    unscored?: string; sort?: string; dir?: string
+    unscored?: string; sort?: string; dir?: string; page?: string
   }>
 }) {
-  const { wave, university, course, unscored, sort: sortParam, dir: dirParam } = await searchParams
+  const { wave, university, course, unscored, sort: sortParam, dir: dirParam, page: pageParam } = await searchParams
   const onlyUnscored = unscored === '1'
   const sort = (sortParam && VALID_SORTS[sortParam]) ? sortParam : 'created_at'
   const dir  = dirParam === 'asc' ? 'asc' : 'desc'
+  const PAGE_SIZE = 25
+  const page = Math.max(1, parseInt(pageParam ?? '1'))
+  const from = (page - 1) * PAGE_SIZE
+  const to   = from + PAGE_SIZE - 1
 
-  let query = supabase
-    .from('respondents')
-    .select('id, created_at, wave, university, course, part_a_score, part_b_score, part_c_score, total_score, level')
-    .order(VALID_SORTS[sort], { ascending: dir === 'asc' })
+  function applyFilters<T>(q: T & { eq: (...a: unknown[]) => T; ilike: (...a: unknown[]) => T; or: (...a: unknown[]) => T }): T {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let r = q as any
+    if (wave)         r = r.eq('wave', Number(wave))
+    if (university)   r = r.ilike('university', `%${university}%`)
+    if (course)       r = r.eq('course', course)
+    if (onlyUnscored) r = r.or('part_b_score.is.null,part_c_score.is.null')
+    return r
+  }
 
-  if (wave)         query = query.eq('wave', Number(wave))
-  if (university)   query = query.ilike('university', `%${university}%`)
-  if (course)       query = query.eq('course', course)
-  if (onlyUnscored) query = query.or('part_b_score.is.null,part_c_score.is.null')
+  const [{ count: totalCount }, { data }] = await Promise.all([
+    applyFilters(supabase.from('respondents').select('*', { count: 'exact', head: true })),
+    applyFilters(
+      supabase
+        .from('respondents')
+        .select('id, created_at, wave, university, course, part_a_score, part_b_score, part_c_score, total_score, level')
+        .order(VALID_SORTS[sort], { ascending: dir === 'asc' })
+    ).range(from, to),
+  ])
 
-  const { data } = await query
-  const rows = data ?? []
+  const total = totalCount ?? 0
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
+
+  const rows = (data ?? []).map(r => {
+    if (r.part_b_score != null && r.part_c_score != null) {
+      const t = Math.round(((r.part_a_score ?? 0) + r.part_b_score + r.part_c_score) * 100) / 100
+      return {
+        ...r,
+        total_score: r.total_score ?? t,
+        level: r.level ?? (t >= 80 ? 'Высокий' : t >= 50 ? 'Средний' : 'Низкий'),
+      }
+    }
+    return r
+  })
 
   const scoredCount   = rows.filter(r => r.part_b_score !== null && r.part_c_score !== null).length
   const unscoredCount = rows.length - scoredCount
