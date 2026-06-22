@@ -18,10 +18,17 @@ const HEADERS = [
 ]
 
 export async function GET(request: NextRequest) {
-  const wave = request.nextUrl.searchParams.get('wave')
+  const p = request.nextUrl.searchParams
+  const wave       = p.get('wave')
+  const course     = p.get('course')
+  const university = p.get('university')
+  const unscored   = p.get('unscored') === '1'
 
   let query = supabase.from('respondents').select('*').order('created_at', { ascending: true })
-  if (wave) query = query.eq('wave', Number(wave))
+  if (wave)       query = query.eq('wave', Number(wave))
+  if (course)     query = query.eq('course', course)
+  if (university) query = query.ilike('university', `%${university}%`)
+  if (unscored)   query = query.or('part_b_score.is.null,part_c_score.is.null')
 
   const { data, error } = await query
   if (error) return new Response('Ошибка при загрузке данных', { status: 500 })
@@ -68,7 +75,9 @@ export async function GET(request: NextRequest) {
   const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' })
 
   const date = new Date().toISOString().slice(0, 10)
-  const filename = `diagnostika_${date}${wave ? `_wave${wave}` : ''}.xlsx`
+  const suffix = [wave && `wave${wave}`, course && course.replace(/\s/g, '_'), unscored && 'unscored']
+    .filter(Boolean).join('_')
+  const filename = `diagnostika_${date}${suffix ? `_${suffix}` : ''}.xlsx`
 
   return new Response(buffer, {
     headers: {

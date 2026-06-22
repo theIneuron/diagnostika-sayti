@@ -5,6 +5,15 @@ import type { Metadata } from 'next'
 export const metadata: Metadata = { title: 'Respondentlar | Admin' }
 export const dynamic = 'force-dynamic'
 
+function buildQuery(params: Record<string, string | undefined>) {
+  const q = new URLSearchParams()
+  for (const [k, v] of Object.entries(params)) {
+    if (v) q.set(k, v)
+  }
+  const s = q.toString()
+  return s ? `?${s}` : ''
+}
+
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -19,24 +28,26 @@ const LEVEL_COLOR: Record<string, string> = {
 export default async function RespondentsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ wave?: string; university?: string; course?: string }>
+  searchParams: Promise<{ wave?: string; university?: string; course?: string; unscored?: string }>
 }) {
-  const { wave, university, course } = await searchParams
+  const { wave, university, course, unscored } = await searchParams
+  const onlyUnscored = unscored === '1'
 
   let query = supabase
     .from('respondents')
     .select('id, created_at, wave, university, course, part_a_score, part_b_score, part_c_score, total_score, level')
     .order('created_at', { ascending: false })
 
-  if (wave) query = query.eq('wave', Number(wave))
-  if (university) query = query.ilike('university', `%${university}%`)
-  if (course) query = query.eq('course', course)
+  if (wave)          query = query.eq('wave', Number(wave))
+  if (university)    query = query.ilike('university', `%${university}%`)
+  if (course)        query = query.eq('course', course)
+  if (onlyUnscored)  query = query.or('part_b_score.is.null,part_c_score.is.null')
 
   const { data } = await query
   const rows = data ?? []
 
-  const scored   = rows.filter(r => r.part_b_score !== null && r.part_c_score !== null).length
-  const unscored = rows.length - scored
+  const scoredCount   = rows.filter(r => r.part_b_score !== null && r.part_c_score !== null).length
+  const unscoredCount = rows.length - scoredCount
 
   return (
     <div>
@@ -44,18 +55,18 @@ export default async function RespondentsPage({
         <div>
           <h1 className="text-xl font-bold text-gray-900">Respondentlar</h1>
           <p className="text-sm text-gray-500 mt-0.5">
-            Jami: {rows.length} · Baholangan: {scored} · Baholanmagan: {unscored}
+            Jami: {rows.length} · Baholangan: {scoredCount} · Baholanmagan: {unscoredCount}
           </p>
         </div>
         <div className="flex gap-2">
           <Link
-            href="/admin/respondents/export/excel"
+            href={`/admin/respondents/export/excel${buildQuery({ wave, course, university, unscored })}`}
             className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors"
           >
             Excel
           </Link>
           <Link
-            href="/admin/respondents/export"
+            href={`/admin/respondents/export${buildQuery({ wave, course, university, unscored })}`}
             className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors"
           >
             CSV
@@ -108,13 +119,23 @@ export default async function RespondentsPage({
           placeholder="Vuz bo'yicha qidirish..."
           className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm w-56"
         />
+        <label className="flex items-center gap-2 cursor-pointer select-none">
+          <input
+            type="checkbox"
+            name="unscored"
+            value="1"
+            defaultChecked={onlyUnscored}
+            className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+          />
+          <span className="text-sm text-gray-600">Faqat baholanmaganlar</span>
+        </label>
         <button
           type="submit"
           className="px-4 py-1.5 text-sm text-white bg-gray-700 rounded-lg hover:bg-gray-800"
         >
           Filter
         </button>
-        {(wave || university || course) && (
+        {(wave || university || course || onlyUnscored) && (
           <Link href="/admin/respondents" className="px-4 py-1.5 text-sm text-gray-500 border border-gray-300 rounded-lg hover:bg-gray-50">
             Tozalash
           </Link>
