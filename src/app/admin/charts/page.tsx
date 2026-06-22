@@ -7,7 +7,8 @@ import SelfVsActualScatter from '@/components/admin/charts/SelfVsActualScatter'
 import PartScoresBar from '@/components/admin/charts/PartScoresBar'
 import CourseScoreBar from '@/components/admin/charts/CourseScoreBar'
 import QuestionDifficultyBar from '@/components/admin/charts/QuestionDifficultyBar'
-import { UNIVERSITIES, COURSES } from '@/types/anketa'
+import LikertAvgBar from '@/components/admin/charts/LikertAvgBar'
+import { UNIVERSITIES, COURSES, LIKERT_STATEMENTS } from '@/types/anketa'
 import { PART_A_QUESTIONS } from '@/types/test'
 
 export const metadata: Metadata = { title: 'Diagrammalar | Admin' }
@@ -126,7 +127,15 @@ export default async function ChartsPage({
       count: scores.length,
     }))
 
-  // --- 6. Part A — savol bo'yicha to'g'ri javob foizi ---
+  // --- 6. Likert — har bir savol bo'yicha o'rtacha ---
+  const likertData = LIKERT_STATEMENTS.map((label, i) => {
+    const key = `b2_q${i + 1}` as keyof typeof rows[0]
+    const vals = rows.map(r => r[key] as number | null).filter((v): v is number => v != null)
+    const avg = vals.length ? Math.round(vals.reduce((a, b) => a + b, 0) / vals.length * 10) / 10 : 0
+    return { q: `B${i + 1}`, label, avg, n: vals.length }
+  })
+
+  // --- 7. Part A — savol bo'yicha to'g'ri javob foizi ---
   const CORRECT_ANSWERS: Record<string, string> = {
     q1: 'Система управления обучением', q2: 'Moodle', q3: 'Мастерская (Workshop)',
     q4: 'Google', q5: 'GIFT/XML', q6: 'Искусственный интеллект', q7: 'ChatGPT',
@@ -141,7 +150,7 @@ export default async function ChartsPage({
     const total   = respondentsWithA.length
     const correct = respondentsWithA.filter(r => r.part_a_answers[q.id] === CORRECT_ANSWERS[q.id]).length
     const pct     = total > 0 ? Math.round((correct / total) * 100) : 0
-    return { q: q.id.replace('q', ''), label: q.text, pct, correct, total }
+    return { q: q.id.replace('q', 'S'), label: q.text, pct, correct, total }
   })
 
   return (
@@ -156,51 +165,79 @@ export default async function ChartsPage({
         <WaveFilter defaultValue={wave ?? ''} basePath="/admin/charts" />
       </div>
 
-      <Card title="1. Universitetlar bo'yicha o'rtacha umumiy ball (0–100)">
-        <p className="text-xs text-gray-500 mb-4">
-          Faqat B va V qismlari baholangan respondentlar hisobga olingan.
-        </p>
-        <UniversityScoreBar data={univScoreData} />
-      </Card>
-
-      <Card title="2. Darajalar taqsimoti — universitetlar kesimi">
-        <p className="text-xs text-gray-500 mb-4">
-          Har bir stacked ustun bir universitetdagi baholangan respondentlar soni.
-        </p>
-        <LevelStackedBar data={levelData} />
-      </Card>
-
-      <Card title="3. O'z-o'zini baholash (Likert 1–5) va test natijasi (0–100) korrelyatsiyasi">
-        <p className="text-xs text-gray-500 mb-4">
-          Har bir nuqta — bir respondent. X o'qi — 6 ta Likert savolining o'rtachasi.
-          Y o'qi — umumiy test bali. Nuqtalar Y o'qiga yaqinroq bo'lsa, o'z-o'zini baholash aniqroq.
-        </p>
-        <SelfVsActualScatter data={scatterData} />
-      </Card>
-
-      <Card title="4. Test qismlari bo'yicha o'rtacha ball — universitetlar kesimi">
-        <p className="text-xs text-gray-500 mb-4">
-          A qismi — nazariy (max 20), B qismi — keys (max 30), V qismi — amaliy topshiriq (max 50).
-          Faqat baholangan respondentlar.
-        </p>
-        <PartScoresBar data={partData} />
-      </Card>
-
-      <Card title="5. Kurs bo'yicha o'rtacha umumiy ball (0–100)">
-        <p className="text-xs text-gray-500 mb-4">
-          3-kurs, 4-kurs va magistratura talabalari natijalarini solishtirish.
-          Faqat baholangan respondentlar hisobga olingan.
-        </p>
-        <CourseScoreBar data={courseData} />
-      </Card>
-
-      <Card title="6. Part A — savol bo'yicha to'g'ri javob foizi">
+      {/* === HOZIR ISHLAYDI: scoring talab etmaydi === */}
+      <Card title="1. Part A — savol bo'yicha to'g'ri javob foizi">
         <p className="text-xs text-gray-500 mb-4">
           Har bir satr — bitta test savoli. Yashil ≥70%, sariq 40–69%, qizil &lt;40%.
-          Qizil savollar — eng ko'p xato qilingan mavzular.
+          Jami respondentlar: <strong>{respondentsWithA.length}</strong>
         </p>
         <QuestionDifficultyBar data={questionData} />
       </Card>
+
+      <Card title="2. O'z-o'zini baholash (Likert 1–5) — savol bo'yicha o'rtacha">
+        <p className="text-xs text-gray-500 mb-4">
+          Indigo ≥4 (yuqori), binafsha 3–4 (o'rta), qizil &lt;3 (past). Respondentlar: <strong>{rows.length}</strong>
+        </p>
+        <LikertAvgBar data={likertData} />
+      </Card>
+
+      {/* === BAHOLASH KERAK === */}
+      {univScoreData.length === 0 && (
+        <ScoringNeeded scored={0} total={rows.length} />
+      )}
+
+      {univScoreData.length > 0 && (
+        <>
+          <Card title="3. Universitetlar bo'yicha o'rtacha umumiy ball (0–100)">
+            <p className="text-xs text-gray-500 mb-4">
+              Faqat B va V qismlari baholangan respondentlar hisobga olingan.
+            </p>
+            <UniversityScoreBar data={univScoreData} />
+          </Card>
+
+          <Card title="4. Darajalar taqsimoti — universitetlar kesimi">
+            <p className="text-xs text-gray-500 mb-4">
+              Har bir stacked ustun bir universitetdagi baholangan respondentlar soni.
+            </p>
+            <LevelStackedBar data={levelData} />
+          </Card>
+
+          <Card title="5. O'z-o'zini baholash vs test natijasi korrelyatsiyasi">
+            <p className="text-xs text-gray-500 mb-4">
+              Har bir nuqta — bir respondent. X o'qi — Likert o'rtachasi. Y o'qi — umumiy test bali.
+            </p>
+            <SelfVsActualScatter data={scatterData} />
+          </Card>
+
+          <Card title="6. Test qismlari bo'yicha o'rtacha ball — universitetlar kesimi">
+            <p className="text-xs text-gray-500 mb-4">
+              A qismi — nazariy (max 20), B qismi — keys (max 30), V qismi — amaliy topshiriq (max 50).
+            </p>
+            <PartScoresBar data={partData} />
+          </Card>
+
+          <Card title="7. Kurs bo'yicha o'rtacha umumiy ball (0–100)">
+            <p className="text-xs text-gray-500 mb-4">
+              3-kurs, 4-kurs va magistratura talabalari natijalarini solishtirish.
+            </p>
+            <CourseScoreBar data={courseData} />
+          </Card>
+        </>
+      )}
+    </div>
+  )
+}
+
+function ScoringNeeded({ scored, total }: { scored: number; total: number }) {
+  return (
+    <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 text-center">
+      <p className="text-sm font-semibold text-amber-800 mb-1">
+        Qolgan diagrammalar baholashdan keyin ko'rinadi
+      </p>
+      <p className="text-xs text-amber-600">
+        Hozir baholangan: <strong>{scored}</strong> / {total} ta respondent.
+        Respondent baholab bo'linganidan keyin 3–7 ta qo'shimcha diagramma avtomatik paydo bo'ladi.
+      </p>
     </div>
   )
 }
