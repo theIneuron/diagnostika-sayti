@@ -57,6 +57,7 @@ export async function submitTest(input: SubmitTestInput): Promise<SubmitTestResu
   const { error } = await supabase
     .from('respondents')
     .update({
+      part_a_answers:       input.partAAnswers,
       part_a_score:         partAScore,
       part_b_case:          1,
       part_b_answer:        input.partBAnswer || null,

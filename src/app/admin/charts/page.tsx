@@ -38,25 +38,60 @@ export default async function ChartsPage({
 }) {
   const { wave } = await searchParams
 
+  // Base query — faqat asosiy ustunlar (har doim ishlaydi)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let query = supabase.from('respondents').select<string, any>(
-    'university, level, total_score, part_a_score, part_b_score, part_c_score, ' +
-    'b2_q1, b2_q2, b2_q3, b2_q4, b2_q5, b2_q6, part_a_answers, course'
+  let baseQuery = supabase.from('respondents').select<string, any>(
+    'id, university, course, level, total_score, part_a_score, part_b_score, part_c_score, part_a_answers'
   )
-  if (wave) query = query.eq('wave', Number(wave))
+  if (wave) baseQuery = baseQuery.eq('wave', Number(wave))
 
-  const { data } = await query
+  // Likert query — alohida, kolumnlar mavjud bo'lmasligi mumkin
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const rows = (data ?? []).map((r: any) => {
-    if (r.part_b_score != null && r.part_c_score != null) {
-      const t = Math.round(((r.part_a_score ?? 0) + r.part_b_score + r.part_c_score) * 100) / 100
+  let likertQuery = supabase.from('respondents').select<string, any>(
+    'id, b2_q1, b2_q2, b2_q3, b2_q4, b2_q5, b2_q6'
+  )
+  if (wave) likertQuery = likertQuery.eq('wave', Number(wave))
+
+  const [{ data: baseData, error: baseError }, { data: likertRaw }] = await Promise.all([
+    baseQuery,
+    likertQuery,
+  ])
+
+  if (baseError) {
+    return (
+      <div className="max-w-4xl">
+        <h1 className="text-xl font-bold text-gray-900 mb-4">Diagrammalar</h1>
+        <div className="bg-red-50 border border-red-200 rounded-xl p-5">
+          <p className="text-sm font-semibold text-red-700 mb-1">Supabase xatosi (SELECT)</p>
+          <pre className="text-xs text-red-600 whitespace-pre-wrap">{JSON.stringify(baseError, null, 2)}</pre>
+          <p className="text-xs text-red-500 mt-2">
+            Supabase SQL Editorga kiring va SELECT policy qo'shing:<br />
+            <code>CREATE POLICY &quot;anon_select&quot; ON respondents FOR SELECT TO anon USING (true);</code>
+          </p>
+        </div>
+      </div>
+    )
+  }
+
+  // Likert ma'lumotlarini base rows ga birlashtirish
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const likertById: Record<string, any> = {}
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ;(likertRaw ?? []).forEach((r: any) => { likertById[r.id] = r })
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const rows = (baseData ?? []).map((r: any) => {
+    const lk = likertById[r.id] ?? {}
+    const merged = { ...r, ...lk }
+    if (merged.part_b_score != null && merged.part_c_score != null) {
+      const t = Math.round(((merged.part_a_score ?? 0) + merged.part_b_score + merged.part_c_score) * 100) / 100
       return {
-        ...r,
-        total_score: r.total_score ?? t,
-        level: r.level ?? (t >= 80 ? 'Высокий' : t >= 50 ? 'Средний' : 'Низкий'),
+        ...merged,
+        total_score: merged.total_score ?? t,
+        level: merged.level ?? (t >= 80 ? 'Высокий' : t >= 50 ? 'Средний' : 'Низкий'),
       }
     }
-    return r
+    return merged
   }) as any[]
 
   // --- 1. Univers bo'yicha o'rtacha umumiy ball ---
