@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import type { Metadata } from 'next'
-import { LIKERT_STATEMENTS, DIFFICULTY_OPTIONS } from '@/types/anketa'
+import { LIKERT_STATEMENTS, DIFFICULTY_OPTIONS, FREQUENCY_TOOLS, FREQUENCY_OPTIONS } from '@/types/anketa'
 import WaveFilter from '@/components/admin/WaveFilter'
 
 export const metadata: Metadata = { title: 'Statistika | Admin' }
@@ -27,6 +27,7 @@ export default async function StatsPage({
   let query = supabase.from('respondents').select(
     'wave, level, total_score, part_a_score, part_b_score, part_c_score, ' +
     'b2_q1, b2_q2, b2_q3, b2_q4, b2_q5, b2_q6, ' +
+    'b3_lms, b3_interactive, b3_ai, ' +
     'difficulties'
   )
   if (wave) query = query.eq('wave', Number(wave))
@@ -68,6 +69,18 @@ export default async function StatsPage({
   const diffStats = DIFFICULTY_OPTIONS.map(opt => {
     const count = rows.filter(r => Array.isArray(r.difficulties) && (r.difficulties as string[]).includes(opt)).length
     return { opt, count, pct: total > 0 ? Math.round((count / total) * 100) : 0 }
+  })
+
+  // --- 3b. Blok III chastota ---
+  const colMap: Record<string, string> = { lms: 'b3_lms', interactive: 'b3_interactive', ai: 'b3_ai' }
+  const freqStats = FREQUENCY_TOOLS.map(tool => {
+    const col = colMap[tool.key]
+    const dist = FREQUENCY_OPTIONS.map(opt => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const count = rows.filter((r: any) => r[col] === opt).length
+      return { opt, count, pct: total > 0 ? Math.round((count / total) * 100) : 0 }
+    })
+    return { tool, dist }
   })
 
   // --- 4. O'rtacha umumiy ball ---
@@ -169,8 +182,45 @@ export default async function StatsPage({
         )}
       </Card>
 
+      {/* Blok III chastota */}
+      <Card title="3. Блок III — Raqamli vositalar ishlatish chastotasi">
+        <p className="text-xs text-gray-500 bg-gray-50 rounded-lg px-3 py-2 mb-5 leading-relaxed">
+          Har bir vosita bo'yicha respondentlar qanchalik tez-tez foydalanishini ko'rsatadi.
+        </p>
+        {total === 0 ? (
+          <p className="text-sm text-gray-400">Ma'lumot yo'q</p>
+        ) : (
+          <div className="space-y-6">
+            {freqStats.map(({ tool, dist }) => (
+              <div key={tool.key}>
+                <p className="text-sm font-medium text-gray-700 mb-3">{tool.label}</p>
+                <div className="space-y-2">
+                  {dist.map(({ opt, count, pct }) => {
+                    const color = opt === 'Каждый день' ? 'bg-green-500'
+                      : opt === 'Несколько раз в неделю' ? 'bg-blue-400'
+                      : opt === 'Редко' ? 'bg-yellow-400'
+                      : 'bg-gray-300'
+                    return (
+                      <div key={opt} className="flex items-center gap-3">
+                        <span className="w-36 text-xs text-gray-600 shrink-0">{opt}</span>
+                        <div className="flex-1 bg-gray-100 rounded-full h-4 overflow-hidden">
+                          <div className={`h-4 rounded-full ${color} transition-all`} style={{ width: `${pct}%` }} />
+                        </div>
+                        <span className="w-16 text-xs font-semibold text-gray-700 text-right">
+                          {pct}% ({count})
+                        </span>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </Card>
+
       {/* Blok IV qiyinchiliklar */}
-      <Card title="3. Блок IV — Raqamli vositalardan foydalanishdagi qiyinchiliklar">
+      <Card title="4. Блок IV — Raqamli vositalardan foydalanishdagi qiyinchiliklar">
         <p className="text-xs text-gray-500 bg-gray-50 rounded-lg px-3 py-2 mb-4 leading-relaxed">
           {"Talabalar bir vaqtda "}
           <strong>bir nechta qiyinchilikni</strong>
