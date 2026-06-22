@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { scoreRespondent } from '@/app/actions/scoreRespondent'
+import { ScoreForm } from '@/components/admin/ScoreForm'
 import {
   LIKERT_STATEMENTS,
   FREQUENCY_TOOLS,
@@ -150,57 +150,13 @@ export default async function RespondentDetailPage({
 
       {/* Ball qo'yish formasi */}
       <Section title="Баллы">
-        <form action={scoreRespondent} className="space-y-4">
-          <input type="hidden" name="id" value={r.id} />
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Часть Б (0–30)
-              </label>
-              <input
-                type="number"
-                name="part_b_score"
-                min={0}
-                max={30}
-                defaultValue={r.part_b_score ?? ''}
-                placeholder="0–30"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Часть В (0–50)
-              </label>
-              <input
-                type="number"
-                name="part_c_score"
-                min={0}
-                max={50}
-                defaultValue={r.part_c_score ?? ''}
-                placeholder="0–50"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              />
-            </div>
-          </div>
-
-          {r.total_score != null && (
-            <div className="p-3 bg-gray-50 rounded-lg border border-gray-200 text-sm">
-              <span className="text-gray-500">Jami: </span>
-              <span className="font-bold text-gray-900">{r.total_score}</span>
-              <span className="mx-2 text-gray-300">|</span>
-              <span className="text-gray-500">Daraja: </span>
-              <span className="font-semibold text-gray-900">{r.level}</span>
-            </div>
-          )}
-
-          <button
-            type="submit"
-            className="px-5 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors"
-          >
-            Сохранить оценки
-          </button>
-        </form>
+        <ScoreForm
+          id={r.id}
+          partBScore={r.part_b_score}
+          partCScore={r.part_c_score}
+          totalScore={r.total_score}
+          level={r.level}
+        />
       </Section>
     </div>
   )
