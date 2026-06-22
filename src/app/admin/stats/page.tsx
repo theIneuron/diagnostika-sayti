@@ -89,6 +89,38 @@ export default async function StatsPage({
     ? Math.round(scoredRows.reduce((a, r) => a + (r.total_score as number), 0) / scoredRows.length * 10) / 10
     : null
 
+  // --- 5. Tavsifiy statistika ---
+  function descStats(nums: number[]) {
+    if (nums.length === 0) return null
+    const n = nums.length
+    const mean = nums.reduce((a, b) => a + b, 0) / n
+    const sorted = [...nums].sort((a, b) => a - b)
+    const median = n % 2 === 0 ? (sorted[n / 2 - 1] + sorted[n / 2]) / 2 : sorted[Math.floor(n / 2)]
+    const variance = nums.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / (n > 1 ? n - 1 : 1)
+    return {
+      n,
+      min: Math.round(sorted[0] * 10) / 10,
+      max: Math.round(sorted[n - 1] * 10) / 10,
+      mean: Math.round(mean * 10) / 10,
+      sd: Math.round(Math.sqrt(variance) * 100) / 100,
+      median: Math.round(median * 10) / 10,
+    }
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function getScores(arr: any[], col: string): number[] {
+    return arr.map(r => r[col]).filter((v): v is number => v != null)
+  }
+
+  const allScored = rows.filter(r => r.part_b_score != null && r.part_c_score != null)
+
+  const descTable = [
+    { label: 'Part A (max 20)', a: descStats(getScores(rows, 'part_a_score')) },
+    { label: 'Part B (max 30)', a: descStats(getScores(allScored, 'part_b_score')) },
+    { label: 'Part C (max 50)', a: descStats(getScores(allScored, 'part_c_score')) },
+    { label: 'Jami (max 100)',  a: descStats(getScores(allScored, 'total_score')) },
+  ]
+
   return (
     <div className="max-w-3xl space-y-6">
       {/* Sarlavha */}
@@ -103,8 +135,50 @@ export default async function StatsPage({
         <WaveFilter defaultValue={wave ?? ''} basePath="/admin/stats" />
       </div>
 
+      {/* Tavsifiy statistika */}
+      <Card title="1. Tavsifiy statistika (dissertatsiya jadvali)">
+        <p className="text-xs text-gray-500 bg-gray-50 rounded-lg px-3 py-2 mb-4 leading-relaxed">
+          N — respondentlar soni · M — o'rtacha · SD — standart og'ish · Me — median.
+          Part B va C faqat baholangan respondentlar uchun.
+        </p>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-gray-100">
+                <th className="text-left py-2 pr-4 text-xs font-medium text-gray-500">Ko'rsatkich</th>
+                <th className="text-center py-2 px-2 text-xs font-medium text-gray-500">N</th>
+                <th className="text-center py-2 px-2 text-xs font-medium text-gray-500">Min</th>
+                <th className="text-center py-2 px-2 text-xs font-medium text-gray-500">Max</th>
+                <th className="text-center py-2 px-2 text-xs font-medium text-indigo-600">M</th>
+                <th className="text-center py-2 px-2 text-xs font-medium text-gray-500">SD</th>
+                <th className="text-center py-2 px-2 text-xs font-medium text-gray-500">Me</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-50">
+              {descTable.map(({ label, a }) => (
+                <tr key={label}>
+                  <td className="py-2.5 pr-4 text-gray-700 font-medium">{label}</td>
+                  {a ? (
+                    <>
+                      <td className="py-2.5 px-2 text-center text-gray-600">{a.n}</td>
+                      <td className="py-2.5 px-2 text-center text-gray-600">{a.min}</td>
+                      <td className="py-2.5 px-2 text-center text-gray-600">{a.max}</td>
+                      <td className="py-2.5 px-2 text-center font-semibold text-indigo-700">{a.mean}</td>
+                      <td className="py-2.5 px-2 text-center text-gray-600">{a.sd}</td>
+                      <td className="py-2.5 px-2 text-center text-gray-600">{a.median}</td>
+                    </>
+                  ) : (
+                    <td colSpan={6} className="py-2.5 px-2 text-center text-gray-300 text-xs">Ma'lumot yo'q</td>
+                  )}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+
       {/* Daraja taqsimoti */}
-      <Card title="1. Darajalar bo'yicha taqsimot">
+      <Card title="2. Darajalar bo'yicha taqsimot">
         <p className="text-xs text-gray-500 bg-gray-50 rounded-lg px-3 py-2 mb-4 leading-relaxed">
           {'Har bir respondentning test natijalari asosida '}
           <strong>uch daraja</strong>
@@ -147,7 +221,7 @@ export default async function StatsPage({
       </Card>
 
       {/* Blok II o'rtacha */}
-      <Card title="2. Блок II — O'z-o'zini baholash (Likert, 1–5)">
+      <Card title="3. Блок II — O'z-o'zini baholash (Likert, 1–5)">
         <p className="text-xs text-gray-500 bg-gray-50 rounded-lg px-3 py-2 mb-4 leading-relaxed">
           {"Anketaning II blokida talabalar "}
           <strong>raqamli vositalarni qanchalik egallashini</strong>
@@ -183,7 +257,7 @@ export default async function StatsPage({
       </Card>
 
       {/* Blok III chastota */}
-      <Card title="3. Блок III — Raqamli vositalar ishlatish chastotasi">
+      <Card title="4. Блок III — Raqamli vositalar ishlatish chastotasi">
         <p className="text-xs text-gray-500 bg-gray-50 rounded-lg px-3 py-2 mb-5 leading-relaxed">
           Har bir vosita bo'yicha respondentlar qanchalik tez-tez foydalanishini ko'rsatadi.
         </p>
@@ -220,7 +294,7 @@ export default async function StatsPage({
       </Card>
 
       {/* Blok IV qiyinchiliklar */}
-      <Card title="4. Блок IV — Raqamli vositalardan foydalanishdagi qiyinchiliklar">
+      <Card title="5. Блок IV — Raqamli vositalardan foydalanishdagi qiyinchiliklar">
         <p className="text-xs text-gray-500 bg-gray-50 rounded-lg px-3 py-2 mb-4 leading-relaxed">
           {"Talabalar bir vaqtda "}
           <strong>bir nechta qiyinchilikni</strong>
