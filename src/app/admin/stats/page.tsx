@@ -256,7 +256,7 @@ export default async function StatsPage({
         <div>
           <h1 className="text-xl font-bold text-gray-900">Статистика</h1>
           <p className="text-sm text-gray-500 mt-0.5">
-            Всего респондентов: <strong>{total}</strong>
+            Всего анкетируемых: <strong>{total}</strong>
             {avgTotal != null && <> · Средний итоговый балл: <strong>{avgTotal}/100</strong></>}
           </p>
         </div>
@@ -274,8 +274,8 @@ export default async function StatsPage({
       {/* Tavsifiy statistika */}
       <Card title="1. Описательная статистика (таблица для диссертации)">
         <p className="text-xs text-gray-500 bg-gray-50 rounded-lg px-3 py-2 mb-4 leading-relaxed">
-          N — количество респондентов · M — среднее · SD — стандартное отклонение · Me — медиана.
-          Части Б и В — только для оценённых респондентов.
+          N — количество анкетируемых · M — среднее · SD — стандартное отклонение · Me — медиана.
+          Части Б и В — только для оценённых анкетируемых.
         </p>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -346,10 +346,10 @@ export default async function StatsPage({
         <p className="text-xs text-gray-500 bg-gray-50 rounded-lg px-3 py-2 mb-4 leading-relaxed">
           Сила связи между средним по шкале Ликерта и каждой частью теста.
           Сильная положительная корреляция означает, что самооценка отражает реальные знания.
-          Учтены только полностью оценённые респонденты ({corrRows.length}).
+          Учтены только полностью оценённые анкетируемые ({corrRows.length}).
         </p>
         {corrRows.length < 3 ? (
-          <p className="text-sm text-gray-400">Для корреляции необходимо минимум 3 оценённых респондента</p>
+          <p className="text-sm text-gray-400">Для корреляции необходимо минимум 3 оценённых анкетируемых</p>
         ) : (
           <table className="w-full text-sm">
             <thead>
@@ -382,14 +382,14 @@ export default async function StatsPage({
       {/* Daraja taqsimoti */}
       <Card title="4. Распределение по уровням">
         <p className="text-xs text-gray-500 bg-gray-50 rounded-lg px-3 py-2 mb-4 leading-relaxed">
-          По результатам теста каждому респонденту присваивается один из{' '}
+          По результатам теста каждому анкетируемому присваивается один из{' '}
           <strong>трёх уровней</strong>:{' '}
           <span className="text-green-700 font-medium">Высокий (80–100 баллов)</span>
           {', '}
           <span className="text-yellow-700 font-medium">Средний (50–79)</span>
           {', '}
           <span className="text-red-600 font-medium">Низкий (0–49)</span>
-          {'. Уровень определяется только после оценивания частей Б и В — неоценённые респонденты в таблице не отображаются.'}
+          {'. Уровень определяется только после оценивания частей Б и В — неоценённые анкетируемые в таблице не отображаются.'}
         </p>
         {total === 0 ? (
           <p className="text-sm text-gray-400">Нет данных</p>
@@ -414,7 +414,7 @@ export default async function StatsPage({
             })}
             {unscored > 0 && (
               <p className="text-xs text-gray-400 pt-1">
-                Ещё не оценено: {unscored} респондентов (не включены в проценты выше)
+                Ещё не оценено: {unscored} анкетируемых (не включены в проценты выше)
               </p>
             )}
           </div>
@@ -424,7 +424,7 @@ export default async function StatsPage({
       {/* Universitetlar solishtirma jadvali */}
       <Card title="5. Сравнительная таблица по университетам">
         <p className="text-xs text-gray-500 bg-gray-50 rounded-lg px-3 py-2 mb-4">
-          M и SD вычисляются только для полностью оценённых респондентов. N — общее количество.
+          M и SD вычисляются только для полностью оценённых анкетируемых. N — общее количество.
         </p>
         <CompareTable groups={univGroups} />
       </Card>
@@ -472,7 +472,7 @@ export default async function StatsPage({
       {/* Blok III chastota */}
       <Card title="8. Блок III — Частота использования цифровых инструментов">
         <p className="text-xs text-gray-500 bg-gray-50 rounded-lg px-3 py-2 mb-5 leading-relaxed">
-          Показывает, как часто респонденты используют каждый инструмент.
+          Показывает, как часто анкетируемые используют каждый инструмент.
         </p>
         {total === 0 ? (
           <p className="text-sm text-gray-400">Нет данных</p>
@@ -512,7 +512,7 @@ export default async function StatsPage({
           Студенты могли отмечать{' '}
           <strong>несколько затруднений</strong>
           {' одновременно. Приведённые проценты показывают, '}
-          <strong>какой процент респондентов указал каждое затруднение</strong>
+          <strong>какой процент анкетируемых указал каждое затруднение</strong>
           {'. Высокий процент означает, что проблема распространена среди большинства.'}
         </p>
         {total === 0 ? (
