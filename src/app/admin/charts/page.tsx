@@ -188,6 +188,20 @@ export default async function ChartsPage({
     return { q: q.id.replace('q', 'S'), label: q.text, pct, correct, total }
   })
 
+  // Part A universitetlar kesimida o'rtacha ball — har doim mavjud (part_a_score)
+  const univPartAMap: Record<string, number[]> = {}
+  rows.forEach(r => {
+    if (r.part_a_score == null) return
+    const key = shortUniv(r.university)
+    if (!univPartAMap[key]) univPartAMap[key] = []
+    univPartAMap[key].push(r.part_a_score as number)
+  })
+  const univPartAData = Object.entries(univPartAMap).map(([univ, scores]) => ({
+    univ,
+    avg: Math.round(scores.reduce((a, b) => a + b, 0) / scores.length * 10) / 10,
+    count: scores.length,
+  }))
+
   return (
     <div className="max-w-4xl space-y-6">
       <div className="flex items-center justify-between">
@@ -201,13 +215,23 @@ export default async function ChartsPage({
       </div>
 
       {/* === HOZIR ISHLAYDI: scoring talab etmaydi === */}
-      <Card title="1. Part A — savol bo'yicha to'g'ri javob foizi">
+      <Card title="1. Part A — universitetlar kesimida o'rtacha ball (max 20)">
         <p className="text-xs text-gray-500 mb-4">
-          Har bir satr — bitta test savoli. Yashil ≥70%, sariq 40–69%, qizil &lt;40%.
-          Jami respondentlar: <strong>{respondentsWithA.length}</strong>
+          Jami respondentlar: <strong>{rows.length}</strong>
+          {univPartAData.length === 0 && ' · Part A ma\'lumoti yo\'q (test topshirilmagan)'}
         </p>
-        <QuestionDifficultyBar data={questionData} />
+        <UniversityScoreBar data={univPartAData} />
       </Card>
+
+      {respondentsWithA.length > 0 && (
+        <Card title="1b. Part A — savol bo'yicha to'g'ri javob foizi">
+          <p className="text-xs text-gray-500 mb-4">
+            Har bir satr — bitta test savoli. Yashil ≥70%, sariq 40–69%, qizil &lt;40%.
+            Respondentlar: <strong>{respondentsWithA.length}</strong>
+          </p>
+          <QuestionDifficultyBar data={questionData} />
+        </Card>
+      )}
 
       <Card title="2. O'z-o'zini baholash (Likert 1–5) — savol bo'yicha o'rtacha">
         <p className="text-xs text-gray-500 mb-4">
