@@ -36,6 +36,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           >
             To'lqin tahlili
           </Link>
+          <Link
+            href="/admin/open-answers"
+            className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"
+          >
+            Ochiq javoblar
+          </Link>
         </nav>
 
         <div className="p-3 border-t border-gray-200">
