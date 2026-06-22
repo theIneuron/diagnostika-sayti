@@ -121,6 +121,90 @@ export default async function StatsPage({
     { label: 'Jami (max 100)',  a: descStats(getScores(allScored, 'total_score')) },
   ]
 
+  // --- 6. Cronbach's alpha (Likert, 6 ta element) ---
+  function cronbachAlpha(matrix: number[][]): number | null {
+    const k = matrix.length
+    if (k < 2) return null
+    const n = matrix[0].length
+    if (n < 2) return null
+    const itemVars = matrix.map(col => {
+      const m = col.reduce((a, b) => a + b, 0) / n
+      return col.reduce((a, b) => a + Math.pow(b - m, 2), 0) / (n - 1)
+    })
+    const totals = Array.from({ length: n }, (_, i) => matrix.reduce((s, col) => s + col[i], 0))
+    const totalMean = totals.reduce((a, b) => a + b, 0) / n
+    const totalVar = totals.reduce((a, b) => a + Math.pow(b - totalMean, 2), 0) / (n - 1)
+    if (totalVar === 0) return null
+    const alpha = (k / (k - 1)) * (1 - itemVars.reduce((a, b) => a + b, 0) / totalVar)
+    return Math.round(alpha * 1000) / 1000
+  }
+
+  const likertMatrix = [1, 2, 3, 4, 5, 6].map(i => {
+    const key = `b2_q${i}`
+    return rows.map(r => r[key] as number | null).filter((v): v is number => v != null)
+  })
+  const minLen = Math.min(...likertMatrix.map(col => col.length))
+  const alpha = minLen >= 2
+    ? cronbachAlpha(likertMatrix.map(col => col.slice(0, minLen)))
+    : null
+
+  function alphaLabel(a: number) {
+    if (a >= 0.9) return "A'joyib (≥0.90)"
+    if (a >= 0.8) return 'Yaxshi (0.80–0.89)'
+    if (a >= 0.7) return 'Qabul qilinadi (0.70–0.79)'
+    if (a >= 0.6) return "So'roqli (0.60–0.69)"
+    return 'Yomon (<0.60)'
+  }
+
+  // --- 7. Pearson korrelyatsiya (Likert o'rtachasi vs Part A/B/C/Jami) ---
+  function pearson(x: number[], y: number[]): number | null {
+    const n2 = Math.min(x.length, y.length)
+    if (n2 < 3) return null
+    const mx = x.slice(0, n2).reduce((a, b) => a + b, 0) / n2
+    const my = y.slice(0, n2).reduce((a, b) => a + b, 0) / n2
+    let num = 0, dx = 0, dy = 0
+    for (let i = 0; i < n2; i++) {
+      num += (x[i] - mx) * (y[i] - my)
+      dx  += Math.pow(x[i] - mx, 2)
+      dy  += Math.pow(y[i] - my, 2)
+    }
+    if (dx === 0 || dy === 0) return null
+    return Math.round((num / Math.sqrt(dx * dy)) * 1000) / 1000
+  }
+
+  // Likert o'rtachasi har bir respondent uchun
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function likertAvg(r: any): number | null {
+    const vals = [1,2,3,4,5,6].map(i => r[`b2_q${i}`] as number | null).filter((v): v is number => v != null)
+    return vals.length === 6 ? Math.round(vals.reduce((a,b)=>a+b,0)/6*100)/100 : null
+  }
+
+  const corrRows = allScored.filter(r => likertAvg(r) != null)
+  const likertAvgs = corrRows.map(r => likertAvg(r) as number)
+
+  const corrTable = [
+    { label: 'Part A',    r: pearson(likertAvgs, corrRows.map(r => r.part_a_score ?? 0)) },
+    { label: 'Part B',    r: pearson(likertAvgs, corrRows.map(r => r.part_b_score as number)) },
+    { label: 'Part C',    r: pearson(likertAvgs, corrRows.map(r => r.part_c_score as number)) },
+    { label: 'Jami ball', r: pearson(likertAvgs, corrRows.map(r => r.total_score as number)) },
+  ]
+
+  function corrColor(r: number) {
+    const a = Math.abs(r)
+    if (a >= 0.7) return 'text-green-700 font-bold'
+    if (a >= 0.4) return 'text-yellow-700 font-semibold'
+    return 'text-gray-500'
+  }
+
+  function corrLabel(r: number) {
+    const a = Math.abs(r)
+    const dir = r > 0 ? 'musbat' : 'manfiy'
+    if (a >= 0.7) return `Kuchli ${dir}`
+    if (a >= 0.4) return `O'rtacha ${dir}`
+    if (a >= 0.2) return `Zaif ${dir}`
+    return 'Deyarli yo\'q'
+  }
+
   return (
     <div className="max-w-3xl space-y-6">
       {/* Sarlavha */}
@@ -177,8 +261,74 @@ export default async function StatsPage({
         </div>
       </Card>
 
+      {/* Cronbach alpha */}
+      <Card title="2. Cronbach's α — Likert shkalasi ichki izchilligi">
+        <p className="text-xs text-gray-500 bg-gray-50 rounded-lg px-3 py-2 mb-4 leading-relaxed">
+          6 ta o'z-o'zini baholash savolining bir-birini qanchalik yaxshi o'lchashini ko'rsatadi.
+          Dissertatsiya metodologiyasida α ≥ 0.70 talab qilinadi.
+        </p>
+        {alpha == null ? (
+          <p className="text-sm text-gray-400">Hisoblash uchun kamida 2 ta to'liq Likert javobi kerak</p>
+        ) : (
+          <div className="flex items-center gap-6">
+            <div>
+              <p className="text-4xl font-bold text-indigo-700">{alpha}</p>
+              <p className="text-xs text-gray-500 mt-1">Cronbach's α (6 element, n={minLen})</p>
+            </div>
+            <div className={`text-sm font-medium px-3 py-1.5 rounded-lg border ${
+              alpha >= 0.7 ? 'bg-green-50 border-green-200 text-green-700'
+              : alpha >= 0.6 ? 'bg-yellow-50 border-yellow-200 text-yellow-700'
+              : 'bg-red-50 border-red-200 text-red-600'
+            }`}>
+              {alphaLabel(alpha)}
+            </div>
+          </div>
+        )}
+        <p className="text-xs text-gray-400 mt-4">
+          Talqin: ≥0.90 — a'joyib · 0.80–0.89 — yaxshi · 0.70–0.79 — qabul qilinadi · &lt;0.70 — takomillashtirish kerak
+        </p>
+      </Card>
+
+      {/* Korrelyatsiya */}
+      <Card title="3. Pearson r — O'z-o'zini baholash (Likert) va test natijalari korrelyatsiyasi">
+        <p className="text-xs text-gray-500 bg-gray-50 rounded-lg px-3 py-2 mb-4 leading-relaxed">
+          Likert o'rtachasi bilan har bir test qismi o'rtasidagi bog'liqlik kuchi.
+          Kuchli musbat korrelyatsiya — o'z-o'zini baholash real bilimni aks ettiradi.
+          Faqat to'liq baholangan respondentlar ({corrRows.length} ta) hisobga olingan.
+        </p>
+        {corrRows.length < 3 ? (
+          <p className="text-sm text-gray-400">Korrelyatsiya uchun kamida 3 ta baholangan respondent kerak</p>
+        ) : (
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-gray-100">
+                <th className="text-left py-2 text-xs font-medium text-gray-500">Ko'rsatkich</th>
+                <th className="text-center py-2 text-xs font-medium text-indigo-600">r</th>
+                <th className="text-left py-2 pl-4 text-xs font-medium text-gray-500">Talqin</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-50">
+              {corrTable.map(({ label, r }) => (
+                <tr key={label}>
+                  <td className="py-2.5 text-gray-700">Likert avg → {label}</td>
+                  <td className={`py-2.5 text-center text-base ${r != null ? corrColor(r) : 'text-gray-300'}`}>
+                    {r != null ? r : '—'}
+                  </td>
+                  <td className="py-2.5 pl-4 text-xs text-gray-500">
+                    {r != null ? corrLabel(r) : '—'}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+        <p className="text-xs text-gray-400 mt-4">
+          |r| talqini: ≥0.70 kuchli · 0.40–0.69 o'rtacha · 0.20–0.39 zaif · &lt;0.20 deyarli yo'q
+        </p>
+      </Card>
+
       {/* Daraja taqsimoti */}
-      <Card title="2. Darajalar bo'yicha taqsimot">
+      <Card title="4. Darajalar bo'yicha taqsimot">
         <p className="text-xs text-gray-500 bg-gray-50 rounded-lg px-3 py-2 mb-4 leading-relaxed">
           {'Har bir respondentning test natijalari asosida '}
           <strong>uch daraja</strong>
@@ -221,7 +371,7 @@ export default async function StatsPage({
       </Card>
 
       {/* Blok II o'rtacha */}
-      <Card title="3. Блок II — O'z-o'zini baholash (Likert, 1–5)">
+      <Card title="5. Блок II — O'z-o'zini baholash (Likert, 1–5)">
         <p className="text-xs text-gray-500 bg-gray-50 rounded-lg px-3 py-2 mb-4 leading-relaxed">
           {"Anketaning II blokida talabalar "}
           <strong>raqamli vositalarni qanchalik egallashini</strong>
@@ -257,7 +407,7 @@ export default async function StatsPage({
       </Card>
 
       {/* Blok III chastota */}
-      <Card title="4. Блок III — Raqamli vositalar ishlatish chastotasi">
+      <Card title="6. Блок III — Raqamli vositalar ishlatish chastotasi">
         <p className="text-xs text-gray-500 bg-gray-50 rounded-lg px-3 py-2 mb-5 leading-relaxed">
           Har bir vosita bo'yicha respondentlar qanchalik tez-tez foydalanishini ko'rsatadi.
         </p>
@@ -294,7 +444,7 @@ export default async function StatsPage({
       </Card>
 
       {/* Blok IV qiyinchiliklar */}
-      <Card title="5. Блок IV — Raqamli vositalardan foydalanishdagi qiyinchiliklar">
+      <Card title="7. Блок IV — Raqamli vositalardan foydalanishdagi qiyinchiliklar">
         <p className="text-xs text-gray-500 bg-gray-50 rounded-lg px-3 py-2 mb-4 leading-relaxed">
           {"Talabalar bir vaqtda "}
           <strong>bir nechta qiyinchilikni</strong>
