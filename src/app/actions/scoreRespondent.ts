@@ -33,9 +33,10 @@ export async function scoreRespondent(
   const totalScore = partAScore + partBScore + partCScore
   const level = totalScore >= 80 ? 'Высокий' : totalScore >= 50 ? 'Средний' : 'Низкий'
 
+  // total_score va level — generated columnlar, DB o'zi hisoblaydi
   const { error } = await supabase
     .from('respondents')
-    .update({ part_b_score: partBScore, part_c_score: partCScore, level })
+    .update({ part_b_score: partBScore, part_c_score: partCScore })
     .eq('id', id)
 
   if (error) {
