@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { getCurrentStudent } from '@/lib/auth'
 import { logoutStudent } from '@/app/actions/auth'
@@ -91,15 +92,21 @@ export default async function CabinetPage() {
                   {m.assignments.map(a => {
                     const s = subs.get(a.key)
                     return (
-                      <li key={a.key} className="flex items-center gap-3 px-5 py-2.5 text-sm">
-                        <StatusDot status={s?.status} />
-                        <span className="flex-1 text-gray-700">{a.title}</span>
-                        {a.points != null && (
-                          <span className="text-xs text-gray-400">
-                            {s?.score != null ? `${s.score}/${a.points}` : `${a.points} б.`}
-                          </span>
-                        )}
-                        <StatusBadge status={s?.status} check={a.check} />
+                      <li key={a.key}>
+                        <Link
+                          href={`/cabinet/task/${encodeURIComponent(a.key)}`}
+                          className="flex items-center gap-3 px-5 py-2.5 text-sm hover:bg-gray-50 transition-colors"
+                        >
+                          <StatusDot status={s?.status} />
+                          <span className="flex-1 text-gray-700">{a.title}</span>
+                          {a.points != null && (
+                            <span className="text-xs text-gray-400">
+                              {s?.score != null ? `${s.score}/${a.points}` : `${a.points} б.`}
+                            </span>
+                          )}
+                          <StatusBadge status={s?.status} check={a.check} />
+                          <span className="text-gray-300">›</span>
+                        </Link>
                       </li>
                     )
                   })}
