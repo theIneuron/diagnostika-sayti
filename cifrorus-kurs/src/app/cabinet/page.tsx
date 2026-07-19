@@ -44,7 +44,10 @@ export default async function CabinetPage() {
             <p className="font-semibold text-gray-900">{student.full_name}</p>
             <p className="text-xs text-gray-400">{student.study_group} · {student.university}</p>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 flex-wrap justify-end">
+            <Link href="/cabinet/portfolio" className="text-sm text-violet-600 font-medium hover:text-violet-800 transition-colors">
+              🗂️ Портфолио
+            </Link>
             <Link href="/cabinet/forum" className="text-sm text-violet-600 font-medium hover:text-violet-800 transition-colors">
               💬 Форум
             </Link>

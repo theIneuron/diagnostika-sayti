@@ -64,6 +64,30 @@ async function upsert(
   return { success: status === 'submitted' ? 'Отправлено на проверку' : 'Черновик сохранён' }
 }
 
+// Тихое автосохранение черновика (без revalidate — не мешает набору текста).
+// Не трогает уже отправленные/оценённые работы.
+export async function autosaveDraft(key: string, content: Record<string, string>): Promise<{ ok: boolean }> {
+  const student = await getCurrentStudent()
+  if (!student) return { ok: false }
+  const assignment = getAssignment(key)
+  if (!assignment || assignment.check === 'auto') return { ok: false }
+
+  const { data: cur } = await supabase
+    .from('submissions')
+    .select('status')
+    .eq('student_id', student.id)
+    .eq('assignment_key', key)
+    .maybeSingle()
+  if (cur && cur.status !== 'draft') return { ok: false }
+
+  const now = new Date().toISOString()
+  const { error } = await supabase.from('submissions').upsert(
+    { student_id: student.id, assignment_key: key, content, status: 'draft', updated_at: now },
+    { onConflict: 'student_id,assignment_key' },
+  )
+  return { ok: !error }
+}
+
 // Единый обработчик формы: кнопка задаёт intent через name="intent"
 // (значение нажатой кнопки попадает в formData).
 export async function submitTask(_prev: SubmissionState, formData: FormData): Promise<SubmissionState> {

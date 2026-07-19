@@ -1,9 +1,18 @@
 'use client'
 
-import { useActionState } from 'react'
-import { submitTask, type SubmissionState } from '@/app/actions/submissions'
+import { useActionState, useEffect, useRef, useState } from 'react'
+import { submitTask, autosaveDraft, type SubmissionState } from '@/app/actions/submissions'
 
 const initial: SubmissionState = {}
+const AUTOSAVE_MS = 2 * 60 * 1000 // каждые 2 минуты (ТЗ)
+
+function collectContent(form: HTMLFormElement, kind?: 'text' | 'protocol'): Record<string, string> {
+  const fd = new FormData(form)
+  const g = (k: string) => String(fd.get(k) ?? '').trim()
+  return kind === 'protocol'
+    ? { prompt: g('prompt'), ai_response: g('ai_response'), rework: g('rework') }
+    : { text: g('text'), link: g('link') }
+}
 
 export interface TaskContent {
   text?: string
@@ -28,11 +37,27 @@ export function TaskForm({
 }) {
   const [state, action, pending] = useActionState(submitTask, initial)
   const graded = status === 'graded'
+  const formRef = useRef<HTMLFormElement>(null)
+  const [savedAt, setSavedAt] = useState<string | null>(null)
   const ta =
     'w-full border border-gray-300 rounded-lg px-3 py-2 text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-violet-500 disabled:bg-gray-50 disabled:text-gray-500'
 
+  // Автосохранение черновика каждые 2 минуты (ТЗ, п. 3.1)
+  useEffect(() => {
+    if (graded) return
+    const timer = setInterval(async () => {
+      const form = formRef.current
+      if (!form) return
+      const content = collectContent(form, kind)
+      if (!Object.values(content).some(v => v)) return // пусто — не сохраняем
+      const res = await autosaveDraft(assignmentKey, content)
+      if (res.ok) setSavedAt(new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }))
+    }, AUTOSAVE_MS)
+    return () => clearInterval(timer)
+  }, [assignmentKey, kind, graded])
+
   return (
-    <form action={action} className="space-y-4">
+    <form ref={formRef} action={action} className="space-y-4">
       <input type="hidden" name="key" value={assignmentKey} />
 
       {kind === 'protocol' ? (
@@ -108,6 +133,7 @@ export function TaskForm({
           >
             Отправить на проверку
           </button>
+          {savedAt && <span className="text-xs text-gray-400">Автосохранено в {savedAt}</span>}
         </div>
       )}
     </form>
