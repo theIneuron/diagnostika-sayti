@@ -131,12 +131,6 @@ export default async function RespondentsPage({
           >
             Excel
           </Link>
-          <Link
-            href={`/admin/respondents/export${buildQuery({ wave, course, university, unscored })}`}
-            className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors"
-          >
-            CSV
-          </Link>
         </div>
       </div>
 

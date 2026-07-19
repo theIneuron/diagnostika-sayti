@@ -247,6 +247,8 @@ export default async function RespondentDetailPage({
           partCScore={r.part_c_score}
           totalScore={r.total_score}
           level={r.level}
+          aiScoreB={r.ai_score_b}
+          aiScoreC={r.ai_score_c}
         />
       </Section>
     </div>

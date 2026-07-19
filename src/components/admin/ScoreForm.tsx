@@ -2,12 +2,22 @@
 
 import { useState, useActionState } from 'react'
 import { scoreRespondent, type ScoreState } from '@/app/actions/scoreRespondent'
+import type { PartEvaluation } from '@/lib/rubrics'
 
 const initial: ScoreState = {}
 
-interface AISuggestion {
-  partB: { score: number; explanation: string }
-  partC: { score: number; explanation: string }
+type PartOutcome = ({ skipped: true; reason: string }) | ({ skipped?: false } & PartEvaluation)
+
+interface AIResult {
+  partB: PartOutcome
+  partC: PartOutcome
+  model?: string
+  rubricVersion?: string
+  warning?: string
+}
+
+function isEval(p: PartOutcome | null | undefined): p is PartEvaluation {
+  return !!p && !('skipped' in p && p.skipped)
 }
 
 export function ScoreForm({
@@ -16,24 +26,32 @@ export function ScoreForm({
   partCScore,
   totalScore,
   level,
+  aiScoreB,
+  aiScoreC,
 }: {
   id: string
   partBScore: number | null
   partCScore: number | null
   totalScore: number | null
   level: string | null
+  aiScoreB?: PartEvaluation | null
+  aiScoreC?: PartEvaluation | null
 }) {
   const [state, action, pending] = useActionState(scoreRespondent, initial)
   const [partB, setPartB] = useState<string>(partBScore != null ? String(partBScore) : '')
   const [partC, setPartC] = useState<string>(partCScore != null ? String(partCScore) : '')
   const [aiLoading, setAiLoading] = useState(false)
-  const [aiSuggestion, setAiSuggestion] = useState<AISuggestion | null>(null)
+  // Изначально показываем ранее сохранённую ИИ-оценку, если она есть
+  const [aiResult, setAiResult] = useState<AIResult | null>(
+    aiScoreB || aiScoreC
+      ? { partB: aiScoreB ?? { skipped: true, reason: 'empty' }, partC: aiScoreC ?? { skipped: true, reason: 'empty' } }
+      : null,
+  )
   const [aiError, setAiError] = useState<string | null>(null)
 
   async function handleAIScore() {
     setAiLoading(true)
     setAiError(null)
-    setAiSuggestion(null)
     try {
       const res = await fetch('/api/admin/ai-score', {
         method: 'POST',
@@ -44,19 +62,13 @@ export function ScoreForm({
       if (!res.ok || data.error) {
         setAiError(data.error ?? 'Ошибка ИИ')
       } else {
-        setAiSuggestion(data)
+        setAiResult(data)
       }
     } catch (e) {
       setAiError(String(e))
     } finally {
       setAiLoading(false)
     }
-  }
-
-  function acceptAI() {
-    if (!aiSuggestion) return
-    setPartB(String(aiSuggestion.partB.score))
-    setPartC(String(aiSuggestion.partC.score))
   }
 
   return (
@@ -114,7 +126,10 @@ export function ScoreForm({
             </>
           )}
         </button>
-        <p className="text-xs text-gray-400 mt-1">Claude оценит ответы и предложит баллы — вы можете принять или изменить</p>
+        <p className="text-xs text-gray-400 mt-1">
+          ИИ оценит открытые ответы по утверждённой рубрике и выставит балл в шкале платформы: Часть Б 0–30,
+          Часть В 0–50. ИИ-оценка хранится отдельно от ручных баллов; ручной балл всегда за экспертом.
+        </p>
       </div>
 
       {/* AI Error */}
@@ -124,49 +139,37 @@ export function ScoreForm({
         </div>
       )}
 
-      {/* AI Suggestion Panel */}
-      {aiSuggestion && (
+      {/* AI Result Panel — детальная оценка по рубрике */}
+      {aiResult && (
         <div className="bg-violet-50 border border-violet-200 rounded-xl p-4 space-y-3">
           <div className="flex items-center justify-between">
-            <p className="text-sm font-semibold text-violet-800">Предложение ИИ (Claude)</p>
-            <button
-              type="button"
-              onClick={acceptAI}
-              className="px-3 py-1 text-xs font-semibold text-white bg-violet-600 rounded-lg hover:bg-violet-700 transition-colors"
-            >
-              Принять оба балла
-            </button>
+            <p className="text-sm font-semibold text-violet-800">Оценка ИИ по рубрике</p>
+            {aiResult.model && (
+              <span className="text-[11px] text-violet-400">{aiResult.model} · рубрика {aiResult.rubricVersion}</span>
+            )}
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="bg-white rounded-lg p-3 border border-violet-100">
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-xs text-violet-600 font-medium">Часть Б</span>
-                <span className="text-lg font-bold text-violet-700">{aiSuggestion.partB.score}<span className="text-xs font-normal text-gray-400">/30</span></span>
-              </div>
-              <p className="text-xs text-gray-600 leading-relaxed">{aiSuggestion.partB.explanation}</p>
-              <button
-                type="button"
-                onClick={() => setPartB(String(aiSuggestion.partB.score))}
-                className="mt-2 text-xs text-violet-600 hover:text-violet-800 underline"
-              >
-                Принять только Б
-              </button>
-            </div>
-            <div className="bg-white rounded-lg p-3 border border-violet-100">
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-xs text-teal-600 font-medium">Часть В</span>
-                <span className="text-lg font-bold text-teal-700">{aiSuggestion.partC.score}<span className="text-xs font-normal text-gray-400">/50</span></span>
-              </div>
-              <p className="text-xs text-gray-600 leading-relaxed">{aiSuggestion.partC.explanation}</p>
-              <button
-                type="button"
-                onClick={() => setPartC(String(aiSuggestion.partC.score))}
-                className="mt-2 text-xs text-teal-600 hover:text-teal-800 underline"
-              >
-                Принять только В
-              </button>
-            </div>
+          {aiResult.warning && (
+            <p className="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded p-2">{aiResult.warning}</p>
+          )}
+          <div className="grid md:grid-cols-2 gap-3">
+            <PartCard
+              title="Часть Б — Применение знаний"
+              accent="violet"
+              part={aiResult.partB}
+              maxScale={30}
+              onAccept={v => setPartB(String(v))}
+            />
+            <PartCard
+              title="Часть В — Практическое задание"
+              accent="teal"
+              part={aiResult.partC}
+              maxScale={50}
+              onAccept={v => setPartC(String(v))}
+            />
           </div>
+          <p className="text-[11px] text-violet-400">
+            «Принять» переносит балл ИИ в поле ручной оценки. Значение можно изменить перед сохранением.
+          </p>
         </div>
       )}
 
@@ -238,6 +241,86 @@ export function ScoreForm({
           {pending ? 'Сохранение...' : 'Сохранить оценки'}
         </button>
       </form>
+    </div>
+  )
+}
+
+const ACCENTS = {
+  violet: { text: 'text-violet-700', border: 'border-violet-100', badge: 'bg-violet-100 text-violet-700' },
+  teal: { text: 'text-teal-700', border: 'border-teal-100', badge: 'bg-teal-100 text-teal-700' },
+} as const
+
+const LEVEL_COLOR: Record<string, string> = {
+  высокий: 'text-green-600',
+  средний: 'text-yellow-600',
+  низкий: 'text-red-500',
+}
+
+function PartCard({
+  title,
+  accent,
+  part,
+  maxScale,
+  onAccept,
+}: {
+  title: string
+  accent: keyof typeof ACCENTS
+  part: PartOutcome
+  // Максимум ручной шкалы платформы для этой части (30 или 50)
+  maxScale: number
+  // Перенести рекомендованный балл в поле ручной оценки
+  onAccept: (value: number) => void
+}) {
+  const a = ACCENTS[accent]
+  // Пересчёт рубрики (0–12) в шкалу платформы через процент
+  const recommended = isEval(part) ? Math.round((part.percent / 100) * maxScale) : null
+  return (
+    <div className={`bg-white rounded-lg p-3 border ${a.border}`}>
+      <p className={`text-xs font-medium mb-2 ${a.text}`}>{title}</p>
+      {!isEval(part) ? (
+        <p className="text-xs text-gray-400 italic">Пропущено — ответ пустой</p>
+      ) : (
+        <>
+          <div className="flex items-baseline gap-2 mb-2">
+            <span className={`text-2xl font-bold ${a.text}`}>{recommended}</span>
+            <span className="text-xs text-gray-400">/ {maxScale}</span>
+            <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${a.badge}`}>{part.percent}%</span>
+            <span className={`text-xs font-semibold ml-auto ${LEVEL_COLOR[part.level] ?? 'text-gray-500'}`}>
+              {part.level}
+            </span>
+          </div>
+          <p className="text-[11px] text-gray-400 mb-2">
+            По рубрике: {part.total} / {part.max} (4 критерия × 0–3)
+          </p>
+          {recommended != null && (
+            <button
+              type="button"
+              onClick={() => onAccept(recommended)}
+              className={`mb-2 w-full text-xs font-medium px-2 py-1.5 rounded-lg border ${a.border} ${a.text} hover:bg-gray-50 transition-colors`}
+            >
+              Принять → {recommended} / {maxScale}
+            </button>
+          )}
+          <ul className="space-y-1.5 mb-2">
+            {part.criteria.map((c, i) => (
+              <li key={i} className="text-xs">
+                <div className="flex items-start gap-1.5">
+                  <span className={`font-bold ${a.text} shrink-0 w-4`}>{c.score}</span>
+                  <div>
+                    <span className="font-medium text-gray-700">{c.name}</span>
+                    {c.comment && <span className="text-gray-500"> — {c.comment}</span>}
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+          {part.feedback && (
+            <p className="text-xs text-gray-600 leading-relaxed border-t border-gray-100 pt-2 italic">
+              {part.feedback}
+            </p>
+          )}
+        </>
+      )}
     </div>
   )
 }

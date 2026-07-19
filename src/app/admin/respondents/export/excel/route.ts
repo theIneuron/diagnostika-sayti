@@ -15,6 +15,7 @@ const HEADERS = [
   'Часть_А_балл', 'Кейс_Б', 'Ответ_Б', 'Балл_Б',
   'Файл_В', 'Обоснование_В', 'Балл_В',
   'Итого', 'Уровень',
+  'ИИ_Балл_Б_0-12', 'ИИ_Балл_В_0-12', 'ИИ_Дата', 'ИИ_Модель',
 ]
 
 export async function GET(request: NextRequest) {
@@ -59,6 +60,10 @@ export async function GET(request: NextRequest) {
       r.part_c_score ?? '',
       r.total_score ?? '',
       r.level ?? '',
+      r.ai_total_b ?? '',
+      r.ai_total_c ?? '',
+      r.ai_evaluated_at ? new Date(r.ai_evaluated_at).toLocaleString('ru-RU') : '',
+      r.ai_model ?? '',
     ])
   ]
 
