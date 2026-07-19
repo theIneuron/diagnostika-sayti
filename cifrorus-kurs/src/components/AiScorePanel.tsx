@@ -1,7 +1,7 @@
 'use client'
 
 import { useActionState } from 'react'
-import { scoreSubmission, type AiScoreState } from '@/app/actions/aiScore'
+import { scoreSubmissionById, type AiScoreState } from '@/app/actions/grading'
 import type { Evaluation } from '@/lib/ai/rubric-engine'
 
 const LEVEL_COLOR: Record<string, string> = {
@@ -11,31 +11,30 @@ const LEVEL_COLOR: Record<string, string> = {
 }
 
 export function AiScorePanel({
-  assignmentKey,
+  submissionId,
   platformMax,
   savedEval,
   savedScaled,
   model,
 }: {
-  assignmentKey: string
+  submissionId: string
   platformMax: number
   savedEval?: Evaluation | null
   savedScaled?: number | null
   model?: string | null
 }) {
-  const [state, action, pending] = useActionState(scoreSubmission, {} as AiScoreState)
+  const [state, action, pending] = useActionState(scoreSubmissionById, {} as AiScoreState)
 
-  // Показываем свежий результат, иначе ранее сохранённый
   const evalResult = state.result ?? savedEval ?? null
   const scaled = state.scaled ?? savedScaled ?? null
   const usedModel = state.model ?? model ?? null
 
   return (
-    <div className="mt-6 rounded-2xl border border-violet-200 bg-violet-50 p-5">
+    <div className="rounded-2xl border border-violet-200 bg-violet-50 p-5">
       <div className="flex items-center justify-between mb-3">
-        <p className="text-sm font-semibold text-violet-800">Оценка ИИ по рубрике</p>
+        <p className="text-sm font-semibold text-violet-800">Подсказка ИИ по рубрике</p>
         <form action={action}>
-          <input type="hidden" name="key" value={assignmentKey} />
+          <input type="hidden" name="id" value={submissionId} />
           <button
             type="submit"
             disabled={pending}
@@ -52,8 +51,8 @@ export function AiScorePanel({
 
       {!evalResult ? (
         <p className="text-xs text-violet-400">
-          ИИ оценит ваш ответ по рубрике (4 критерия × 0–3) и переведёт в шкалу задания (0–{platformMax}).
-          Итоговый балл всё равно ставит преподаватель.
+          ИИ оценит ответ по рубрике (4 критерия × 0–3) и переведёт в шкалу задания (0–{platformMax}).
+          Это подсказка эксперту — итоговый балл ставите вы.
         </p>
       ) : (
         <div className="bg-white rounded-xl border border-violet-100 p-4">
