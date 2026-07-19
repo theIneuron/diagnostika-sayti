@@ -12,7 +12,7 @@ export const dynamic = 'force-dynamic'
 interface Sub {
   id: string
   assignment_key: string
-  content: { text?: string; link?: string } | null
+  content: { text?: string; link?: string; prompt?: string; ai_response?: string; rework?: string } | null
   status: string
   score: number | null
   feedback: string | null
@@ -57,16 +57,26 @@ export default async function AdminSubmissionPage({ params }: { params: Promise<
         {/* Ответ студента */}
         <div className="rounded-2xl border border-gray-200 p-5 mb-6">
           <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Ответ студента</p>
-          {content.text ? (
-            <p className="text-sm text-gray-800 whitespace-pre-wrap leading-relaxed">{content.text}</p>
+          {assignment?.kind === 'protocol' ? (
+            <div className="space-y-3">
+              <Field label="Промпт" value={content.prompt} accent="text-violet-600" />
+              <Field label="Ответ ИИ" value={content.ai_response} accent="text-teal-600" />
+              <Field label="Критическая переработка" value={content.rework} accent="text-amber-600" />
+            </div>
           ) : (
-            <p className="text-sm text-gray-400 italic">Текст не заполнен</p>
-          )}
-          {content.link && (
-            <a href={content.link} target="_blank" rel="noopener noreferrer"
-              className="mt-3 inline-block text-sm text-violet-600 hover:underline break-all">
-              {content.link}
-            </a>
+            <>
+              {content.text ? (
+                <p className="text-sm text-gray-800 whitespace-pre-wrap leading-relaxed">{content.text}</p>
+              ) : (
+                <p className="text-sm text-gray-400 italic">Текст не заполнен</p>
+              )}
+              {content.link && (
+                <a href={content.link} target="_blank" rel="noopener noreferrer"
+                  className="mt-3 inline-block text-sm text-violet-600 hover:underline break-all">
+                  {content.link}
+                </a>
+              )}
+            </>
           )}
         </div>
 
@@ -97,5 +107,18 @@ export default async function AdminSubmissionPage({ params }: { params: Promise<
         </div>
       </div>
     </main>
+  )
+}
+
+function Field({ label, value, accent }: { label: string; value?: string; accent: string }) {
+  return (
+    <div>
+      <p className={`text-xs font-semibold uppercase tracking-wide mb-1 ${accent}`}>{label}</p>
+      {value ? (
+        <p className="text-sm text-gray-800 whitespace-pre-wrap leading-relaxed">{value}</p>
+      ) : (
+        <p className="text-sm text-gray-300 italic">не заполнено</p>
+      )}
+    </div>
   )
 }

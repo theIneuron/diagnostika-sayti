@@ -32,7 +32,9 @@ export default async function TaskPage({ params }: { params: Promise<{ key: stri
     .eq('assignment_key', decodedKey)
     .maybeSingle()
 
-  const content = (sub?.content ?? {}) as { text?: string; link?: string }
+  const content = (sub?.content ?? {}) as {
+    text?: string; link?: string; prompt?: string; ai_response?: string; rework?: string
+  }
   const status: string | null = sub?.status ?? null
   const badge = status ? STATUS_LABEL[status] : null
 
@@ -69,9 +71,9 @@ export default async function TaskPage({ params }: { params: Promise<{ key: stri
           ) : (
             <TaskForm
               assignmentKey={decodedKey}
-              text={content.text ?? ''}
-              link={content.link ?? ''}
+              content={content}
               status={status}
+              kind={assignment.kind}
               needsLink
             />
           )}

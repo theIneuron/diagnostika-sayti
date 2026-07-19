@@ -5,52 +5,76 @@ import { submitTask, type SubmissionState } from '@/app/actions/submissions'
 
 const initial: SubmissionState = {}
 
+export interface TaskContent {
+  text?: string
+  link?: string
+  prompt?: string
+  ai_response?: string
+  rework?: string
+}
+
 export function TaskForm({
   assignmentKey,
-  text,
-  link,
+  content,
   status,
   needsLink,
+  kind,
 }: {
   assignmentKey: string
-  text: string
-  link: string
+  content: TaskContent
   status: string | null
   needsLink?: boolean
+  kind?: 'text' | 'protocol'
 }) {
   const [state, action, pending] = useActionState(submitTask, initial)
   const graded = status === 'graded'
+  const ta =
+    'w-full border border-gray-300 rounded-lg px-3 py-2 text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-violet-500 disabled:bg-gray-50 disabled:text-gray-500'
 
   return (
     <form action={action} className="space-y-4">
       <input type="hidden" name="key" value={assignmentKey} />
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Ваш ответ</label>
-        <textarea
-          name="text"
-          defaultValue={text}
-          rows={10}
-          disabled={graded}
-          placeholder="Введите ответ на задание…"
-          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-violet-500 disabled:bg-gray-50 disabled:text-gray-500"
-        />
-      </div>
-
-      {needsLink && (
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Ссылка <span className="text-gray-400 font-normal">(на файл / курс / документ)</span>
-          </label>
-          <input
-            name="link"
-            type="url"
-            defaultValue={link}
-            disabled={graded}
-            placeholder="https://…"
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 disabled:bg-gray-50 disabled:text-gray-500"
-          />
-        </div>
+      {kind === 'protocol' ? (
+        <>
+          <div className="text-xs text-gray-500 bg-violet-50 border border-violet-100 rounded-lg p-3">
+            📓 Протокол ИИ-дневника: зафиксируйте обращение к нейросети и его критическую переработку.
+            Эти данные сохраняются в вашем разделе «ИИ-дневник».
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">1. Ваш промпт (запрос к ИИ)</label>
+            <textarea name="prompt" defaultValue={content.prompt ?? ''} rows={3} disabled={graded}
+              placeholder="Что вы попросили у нейросети…" className={ta} />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">2. Ответ ИИ</label>
+            <textarea name="ai_response" defaultValue={content.ai_response ?? ''} rows={5} disabled={graded}
+              placeholder="Что ответила нейросеть…" className={ta} />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">3. Критическая переработка</label>
+            <textarea name="rework" defaultValue={content.rework ?? ''} rows={5} disabled={graded}
+              placeholder="Что вы изменили, что было неверным, ваш итоговый вариант…" className={ta} />
+          </div>
+        </>
+      ) : (
+        <>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Ваш ответ</label>
+            <textarea name="text" defaultValue={content.text ?? ''} rows={10} disabled={graded}
+              placeholder="Введите ответ на задание…" className={ta} />
+          </div>
+          {needsLink && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Ссылка <span className="text-gray-400 font-normal">(на файл / курс / документ)</span>
+              </label>
+              <input name="link" type="url" defaultValue={content.link ?? ''} disabled={graded}
+                placeholder="https://…"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 disabled:bg-gray-50 disabled:text-gray-500" />
+            </div>
+          )}
+        </>
       )}
 
       {state.error && (

@@ -19,6 +19,10 @@ export interface Assignment {
   check: CheckType
   points?: number // баллы, если задание оценивается в итоговую шкалу
   graded?: boolean // входит ли в итоговые 120 баллов
+  // 'protocol' — задание Модуля 3 с полями ИИ-дневника (промпт / ответ ИИ /
+  // критическая переработка). Сохраняется в submissions.content и попадает
+  // в раздел «ИИ-дневник».
+  kind?: 'text' | 'protocol'
 }
 
 export interface CourseModule {
@@ -67,10 +71,10 @@ export const MODULES: CourseModule[] = [
     hours: '20 ч.',
     accent: 'from-teal-500 to-emerald-500',
     assignments: [
-      { key: '3.1', title: 'Структурирование с ИИ', check: 'manual' },
-      { key: '3.2', title: 'Стилистическая правка', check: 'manual' },
-      { key: '3.3', title: 'Перефразирование (зона риска)', check: 'manual' },
-      { key: '3.4', title: 'Верификация галлюцинаций', check: 'manual' },
+      { key: '3.1', title: 'Структурирование с ИИ', check: 'manual', kind: 'protocol' },
+      { key: '3.2', title: 'Стилистическая правка', check: 'manual', kind: 'protocol' },
+      { key: '3.3', title: 'Перефразирование (зона риска)', check: 'manual', kind: 'protocol' },
+      { key: '3.4', title: 'Верификация галлюцинаций', check: 'manual', kind: 'protocol' },
       { key: 'm3-essay', title: 'Итоговое рефлексивное эссе', check: 'ai', points: 25, graded: true },
     ],
   },

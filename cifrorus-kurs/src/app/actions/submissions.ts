@@ -24,10 +24,23 @@ async function upsert(
   if (!assignment) return { error: 'Задание не найдено' }
   if (assignment.check === 'auto') return { error: 'Это тест — отправляется отдельно' }
 
-  const text = String(formData.get('text') ?? '').trim()
-  const link = String(formData.get('link') ?? '').trim()
+  // Протокол ИИ-дневника (Модуль 3) или обычный текстовый ответ
+  let content: Record<string, string>
+  let filled: boolean
+  if (assignment.kind === 'protocol') {
+    const prompt = String(formData.get('prompt') ?? '').trim()
+    const aiResponse = String(formData.get('ai_response') ?? '').trim()
+    const rework = String(formData.get('rework') ?? '').trim()
+    content = { prompt, ai_response: aiResponse, rework }
+    filled = !!(prompt || aiResponse || rework)
+  } else {
+    const text = String(formData.get('text') ?? '').trim()
+    const link = String(formData.get('link') ?? '').trim()
+    content = { text, link }
+    filled = !!(text || link)
+  }
 
-  if (status === 'submitted' && !text && !link) {
+  if (status === 'submitted' && !filled) {
     return { error: 'Заполните ответ перед отправкой' }
   }
 
@@ -36,7 +49,7 @@ async function upsert(
     {
       student_id: student.id,
       assignment_key: key,
-      content: { text, link },
+      content,
       status,
       submitted_at: status === 'submitted' ? now : null,
       updated_at: now,
