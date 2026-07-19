@@ -27,10 +27,23 @@ export default async function TaskPage({ params }: { params: Promise<{ key: stri
 
   const { data: sub } = await supabase
     .from('submissions')
-    .select('content, status, score, feedback, ai_score, ai_total, ai_model')
+    .select('id, content, status, score, feedback, ai_score, ai_total, ai_model')
     .eq('student_id', student.id)
     .eq('assignment_key', decodedKey)
     .maybeSingle()
+
+  // Одобренные преподавателем рецензии сокурсников на эту работу
+  const { data: reviewData } = sub
+    ? await supabase
+        .from('reviews')
+        .select('id, content')
+        .eq('target_submission_id', sub.id)
+        .eq('approved', true)
+    : { data: null }
+  const approvedReviews = (reviewData ?? []) as unknown as {
+    id: string
+    content: { strengths?: string; weaknesses?: string; suggestions?: string } | null
+  }[]
 
   const content = (sub?.content ?? {}) as {
     text?: string; link?: string; prompt?: string; ai_response?: string; rework?: string
@@ -91,7 +104,37 @@ export default async function TaskPage({ params }: { params: Promise<{ key: stri
             {sub?.feedback && <p className="mt-2 text-sm text-gray-700 leading-relaxed">{sub.feedback}</p>}
           </div>
         )}
+
+        {/* Рецензии сокурсников (одобренные преподавателем) */}
+        {approvedReviews.length > 0 && (
+          <div className="mt-6 rounded-2xl border border-gray-200 p-5">
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
+              Рецензии сокурсников
+            </p>
+            <div className="space-y-3">
+              {approvedReviews.map(rv => {
+                const c = rv.content ?? {}
+                return (
+                  <div key={rv.id} className="rounded-xl border border-gray-100 p-3 space-y-0.5">
+                    {c.strengths && <ReviewLine label="Достоинства" value={c.strengths} />}
+                    {c.weaknesses && <ReviewLine label="Недостатки" value={c.weaknesses} />}
+                    {c.suggestions && <ReviewLine label="Рекомендации" value={c.suggestions} />}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )}
       </div>
     </main>
+  )
+}
+
+function ReviewLine({ label, value }: { label: string; value: string }) {
+  return (
+    <p className="text-xs text-gray-600">
+      <span className="font-semibold text-gray-500">{label}: </span>
+      {value}
+    </p>
   )
 }

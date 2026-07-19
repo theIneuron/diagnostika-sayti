@@ -6,6 +6,7 @@ import { getAssignment, MODULES } from '@/lib/course'
 import { getRubric } from '@/lib/ai/rubrics'
 import { AiScorePanel } from '@/components/AiScorePanel'
 import { GradeForm } from '@/components/GradeForm'
+import { approveReview } from '@/app/actions/reviews'
 
 export const dynamic = 'force-dynamic'
 
@@ -40,6 +41,19 @@ export default async function AdminSubmissionPage({ params }: { params: Promise<
   const rubric = getRubric(sub.assignment_key)
   const content = sub.content ?? {}
   const maxPoints = assignment?.points ?? 100
+
+  // Рецензии сокурсников на эту работу
+  const { data: reviewData } = await supabase
+    .from('reviews')
+    .select('id, content, approved, students:reviewer_id(full_name)')
+    .eq('target_submission_id', sub.id)
+    .order('created_at', { ascending: true })
+  const reviews = (reviewData ?? []) as unknown as {
+    id: string
+    approved: boolean
+    content: { strengths?: string; weaknesses?: string; suggestions?: string } | null
+    students: { full_name: string } | null
+  }[]
 
   return (
     <main className="flex-1">
@@ -105,8 +119,54 @@ export default async function AdminSubmissionPage({ params }: { params: Promise<
             aiSuggested={sub.ai_total}
           />
         </div>
+
+        {/* Рецензии сокурсников — одобрение */}
+        {reviews.length > 0 && (
+          <div className="mt-6 rounded-2xl border border-gray-200 p-5">
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
+              Рецензии сокурсников ({reviews.length})
+            </p>
+            <div className="space-y-3">
+              {reviews.map(rv => {
+                const c = rv.content ?? {}
+                return (
+                  <div key={rv.id} className="rounded-xl border border-gray-100 p-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium text-gray-800">{rv.students?.full_name ?? '—'}</span>
+                      {rv.approved ? (
+                        <span className="text-[11px] px-2 py-0.5 rounded-full bg-green-100 text-green-700 font-medium">
+                          Одобрена
+                        </span>
+                      ) : (
+                        <form action={approveReview}>
+                          <input type="hidden" name="review_id" value={rv.id} />
+                          <input type="hidden" name="submission_id" value={sub.id} />
+                          <button className="text-[11px] px-2.5 py-1 rounded-lg bg-violet-600 text-white font-medium hover:bg-violet-700 transition-colors">
+                            Одобрить
+                          </button>
+                        </form>
+                      )}
+                    </div>
+                    {c.strengths && <ReviewLine label="Достоинства" value={c.strengths} />}
+                    {c.weaknesses && <ReviewLine label="Недостатки" value={c.weaknesses} />}
+                    {c.suggestions && <ReviewLine label="Рекомендации" value={c.suggestions} />}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )}
       </div>
     </main>
+  )
+}
+
+function ReviewLine({ label, value }: { label: string; value: string }) {
+  return (
+    <p className="text-xs text-gray-600 mb-0.5">
+      <span className="font-semibold text-gray-500">{label}: </span>
+      {value}
+    </p>
   )
 }
 

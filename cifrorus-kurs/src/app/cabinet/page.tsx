@@ -48,6 +48,9 @@ export default async function CabinetPage() {
             <Link href="/cabinet/forum" className="text-sm text-violet-600 font-medium hover:text-violet-800 transition-colors">
               💬 Форум
             </Link>
+            <Link href="/cabinet/review" className="text-sm text-violet-600 font-medium hover:text-violet-800 transition-colors">
+              📝 Рецензии
+            </Link>
             <Link href="/cabinet/diary" className="text-sm text-violet-600 font-medium hover:text-violet-800 transition-colors">
               📓 ИИ-дневник
             </Link>
