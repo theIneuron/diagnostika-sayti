@@ -169,7 +169,7 @@ export default function Home() {
         <div className="marquee-track gap-10 text-gray-600 text-sm font-medium">
           {[...MARQUEE, ...MARQUEE].map((t, i) => (
             <span key={i} className="flex items-center gap-10 whitespace-nowrap">
-              {t} <span className="text-violet-500/60">✦</span>
+              {t} <span className="w-1.5 h-1.5 rotate-45 rounded-[2px] bg-violet-500/50" />
             </span>
           ))}
         </div>
@@ -187,8 +187,10 @@ export default function Home() {
           <TiltCard max={5} glowColor="rgba(167,139,250,0.14)" className="card-dark md:col-span-4 p-7 will-change-transform">
             <div className="grid sm:grid-cols-2 gap-6 items-center">
               <div>
-                <span className="text-2xl">📓</span>
-                <h3 className="mt-3 text-xl font-bold text-white">ИИ-дневник студента</h3>
+                <IconBadge tint="from-violet-500/25 to-indigo-500/10 border-violet-400/25 text-violet-300">
+                  <IconBook />
+                </IconBadge>
+                <h3 className="mt-4 text-xl font-bold text-white">ИИ-дневник студента</h3>
                 <p className="mt-2 text-sm text-gray-400 leading-relaxed">
                   Каждое обращение к нейросети фиксируется протоколом: промпт → ответ ИИ → критическая
                   переработка. Уникальный элемент авторской методики.
@@ -200,8 +202,10 @@ export default function Home() {
 
           {/* ИИ-оценивание — кольцо */}
           <TiltCard max={7} glowColor="rgba(103,232,249,0.12)" className="card-dark md:col-span-2 p-7 will-change-transform">
-            <span className="text-2xl">🤖</span>
-            <h3 className="mt-3 text-lg font-bold text-white">ИИ-оценивание</h3>
+            <IconBadge tint="from-cyan-500/25 to-sky-500/10 border-cyan-400/25 text-cyan-300">
+              <IconSparkles />
+            </IconBadge>
+            <h3 className="mt-4 text-lg font-bold text-white">ИИ-оценивание</h3>
             <p className="mt-1.5 text-xs text-gray-400 leading-relaxed">
               Gemini оценивает работы по рубрике — эксперт принимает решение.
             </p>
@@ -210,15 +214,19 @@ export default function Home() {
 
           {/* Форум — живой чат */}
           <TiltCard max={7} glowColor="rgba(167,139,250,0.14)" className="card-dark md:col-span-2 p-7 will-change-transform">
-            <span className="text-2xl">💬</span>
-            <h3 className="mt-3 text-lg font-bold text-white">Форум</h3>
+            <IconBadge tint="from-violet-500/25 to-fuchsia-500/10 border-violet-400/25 text-violet-300">
+              <IconChat />
+            </IconBadge>
+            <h3 className="mt-4 text-lg font-bold text-white">Форум</h3>
             <MiniChat />
           </TiltCard>
 
           {/* Портфолио — веер работ */}
           <TiltCard max={7} glowColor="rgba(52,211,153,0.12)" className="card-dark md:col-span-2 p-7 group will-change-transform">
-            <span className="text-2xl">🗂️</span>
-            <h3 className="mt-3 text-lg font-bold text-white">Портфолио</h3>
+            <IconBadge tint="from-emerald-500/25 to-teal-500/10 border-emerald-400/25 text-emerald-300">
+              <IconLayers />
+            </IconBadge>
+            <h3 className="mt-4 text-lg font-bold text-white">Портфолио</h3>
             <p className="mt-1.5 text-xs text-gray-400">Все работы курса — в одном месте, готовы к защите.</p>
             <div className="relative h-24 mt-5">
               {[0, 1, 2].map(i => (
@@ -242,8 +250,10 @@ export default function Home() {
 
           {/* 120 баллов — прогресс */}
           <TiltCard max={7} glowColor="rgba(251,191,36,0.12)" className="card-dark md:col-span-2 p-7 will-change-transform">
-            <span className="text-2xl">🏆</span>
-            <h3 className="mt-3 text-lg font-bold text-white">
+            <IconBadge tint="from-amber-500/25 to-orange-500/10 border-amber-400/25 text-amber-300">
+              <IconAward />
+            </IconBadge>
+            <h3 className="mt-4 text-lg font-bold text-white">
               <Counter to={120} className="tabular-nums" /> баллов
             </h3>
             <p className="mt-1.5 text-xs text-gray-400">Тест · эссе · проект · кейс — прозрачная шкала уровней.</p>
@@ -296,6 +306,80 @@ export default function Home() {
 }
 
 // ============================================================
+// Иконки (line-style SVG) в градиентных бейджах — под тёмную сцену
+// ============================================================
+
+function IconBadge({ tint, children }: { tint: string; children: React.ReactNode }) {
+  return (
+    <div className={`inline-flex w-11 h-11 items-center justify-center rounded-xl border bg-gradient-to-br ${tint}`}>
+      {children}
+    </div>
+  )
+}
+
+const iconProps = {
+  width: 20,
+  height: 20,
+  viewBox: '0 0 24 24',
+  fill: 'none',
+  stroke: 'currentColor',
+  strokeWidth: 1.8,
+  strokeLinecap: 'round',
+  strokeLinejoin: 'round',
+} as const
+
+// Раскрытая книга — ИИ-дневник
+function IconBook() {
+  return (
+    <svg {...iconProps}>
+      <path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2z" />
+      <path d="M22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z" />
+    </svg>
+  )
+}
+
+// Искры — ИИ-оценивание
+function IconSparkles() {
+  return (
+    <svg {...iconProps}>
+      <path d="M12 3.5 13.8 9a2 2 0 0 0 1.2 1.2L20.5 12l-5.5 1.8A2 2 0 0 0 13.8 15L12 20.5 10.2 15A2 2 0 0 0 9 13.8L3.5 12 9 10.2A2 2 0 0 0 10.2 9z" />
+      <path d="M19 3v3M17.5 4.5h3" />
+    </svg>
+  )
+}
+
+// Диалог — форум
+function IconChat() {
+  return (
+    <svg {...iconProps}>
+      <path d="M7.9 20A9 9 0 1 0 4 16.1L2.5 21.5z" />
+      <path d="M8 10h8M8 13.5h5" />
+    </svg>
+  )
+}
+
+// Слои — портфолио
+function IconLayers() {
+  return (
+    <svg {...iconProps}>
+      <path d="m12 2.5 9.5 4.75L12 12 2.5 7.25z" />
+      <path d="m2.5 12 9.5 4.75L21.5 12" />
+      <path d="m2.5 16.75 9.5 4.75 9.5-4.75" />
+    </svg>
+  )
+}
+
+// Медаль — 120 баллов
+function IconAward() {
+  return (
+    <svg {...iconProps}>
+      <circle cx="12" cy="8.5" r="5.5" />
+      <path d="m15.2 12.9 1.3 8.1-4.5-2.7-4.5 2.7 1.3-8.1" />
+    </svg>
+  )
+}
+
+// ============================================================
 // Живые мини-интерфейсы внутри bento-карт
 // ============================================================
 
@@ -332,7 +416,7 @@ function MiniProtocol() {
 function MiniChat() {
   const msgs = [
     { me: false, text: 'ИИ — помощник или костыль?' },
-    { me: true, text: 'Инструмент. Вопрос в рефлексии 🙂' },
+    { me: true, text: 'Инструмент. Вопрос в рефлексии' },
     { me: false, text: 'Согласна, главное — проверять!' },
   ]
   const period = 6.5
