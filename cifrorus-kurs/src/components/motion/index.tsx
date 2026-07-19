@@ -80,7 +80,8 @@ export function TiltCard({
   children,
   className = '',
   max = 10,
-}: { children: React.ReactNode; className?: string; max?: number }) {
+  glowColor = 'rgba(124,58,237,0.10)',
+}: { children: React.ReactNode; className?: string; max?: number; glowColor?: string }) {
   const ref = useRef<HTMLDivElement>(null)
   const rx = useSpring(useMotionValue(0), { stiffness: 200, damping: 20 })
   const ry = useSpring(useMotionValue(0), { stiffness: 200, damping: 20 })
@@ -105,7 +106,7 @@ export function TiltCard({
 
   const glow = useTransform(
     [glowX, glowY],
-    ([x, y]) => `radial-gradient(320px circle at ${x}% ${y}%, rgba(124,58,237,0.10), transparent 65%)`,
+    ([x, y]) => `radial-gradient(320px circle at ${x}% ${y}%, ${glowColor}, transparent 65%)`,
   )
 
   return (
