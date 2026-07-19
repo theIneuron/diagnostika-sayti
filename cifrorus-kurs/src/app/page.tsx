@@ -1,5 +1,19 @@
+'use client'
+
 import Link from 'next/link'
-import { Reveal } from '@/components/Reveal'
+import { useRef } from 'react'
+import {
+  motion,
+  FadeUp,
+  Stagger,
+  StaggerItem,
+  TiltCard,
+  Magnetic,
+  Counter,
+  ScrollProgress,
+  Parallax,
+} from '@/components/motion'
+import { useMotionValue, useSpring, useTransform } from 'framer-motion'
 
 const MODULES = [
   { n: 1, title: 'Введение в цифровую экосистему', weeks: 'недели 1–3', hours: '14 ч.', accent: 'from-violet-500 to-indigo-500' },
@@ -9,115 +23,244 @@ const MODULES = [
 ]
 
 const FEATURES = [
-  { icon: '📓', title: 'ИИ-дневник', text: 'Протокол каждого обращения к нейросети' },
-  { icon: '🗂️', title: 'Портфолио', text: 'Все работы в одном месте — для защиты' },
-  { icon: '💬', title: 'Форум', text: 'Обсуждение этики ИИ с сокурсниками' },
-  { icon: '🤖', title: 'ИИ-оценивание', text: 'Помощь эксперту в оценке по рубрике' },
+  { icon: '📓', title: 'ИИ-дневник', text: 'Протокол каждого обращения к нейросети — уникальный элемент методики' },
+  { icon: '🗂️', title: 'Портфолио', text: 'Все работы в одном месте — для рефлексии и защиты' },
+  { icon: '💬', title: 'Форум', text: 'Обсуждение этики ИИ и ответы сокурсникам' },
+  { icon: '🤖', title: 'ИИ-оценивание', text: 'Помощь эксперту в оценке открытых ответов по рубрике' },
 ]
 
+const STATS = [
+  { to: 72, suffix: '', label: 'часа курса' },
+  { to: 18, suffix: '', label: 'недель' },
+  { to: 4, suffix: '', label: 'модуля' },
+  { to: 120, suffix: '', label: 'баллов максимум' },
+]
+
+const HERO_WORDS = ['Цифровые', 'технологии', 'в', 'обучении', 'русскому', 'языку']
+
 export default function Home() {
+  // Фоновые пятна следуют за курсором (мягкий параллакс мыши)
+  const mx = useMotionValue(0)
+  const my = useMotionValue(0)
+  const sx = useSpring(mx, { stiffness: 40, damping: 18 })
+  const sy = useSpring(my, { stiffness: 40, damping: 18 })
+  const blob1x = useTransform(sx, v => v * 0.06)
+  const blob1y = useTransform(sy, v => v * 0.06)
+  const blob2x = useTransform(sx, v => v * -0.04)
+  const blob2y = useTransform(sy, v => v * -0.04)
+  const heroRef = useRef<HTMLDivElement>(null)
+
+  function onMouse(e: React.MouseEvent) {
+    const r = heroRef.current?.getBoundingClientRect()
+    if (!r) return
+    mx.set(e.clientX - (r.left + r.width / 2))
+    my.set(e.clientY - (r.top + r.height / 2))
+  }
+
   return (
-    <main className="flex-1">
+    <main className="flex-1" onMouseMove={onMouse}>
+      <ScrollProgress />
+
       {/* Шапка */}
-      <header className="glass sticky top-0 z-40">
+      <motion.header
+        initial={{ y: -64, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ type: 'spring', stiffness: 120, damping: 18, delay: 0.1 }}
+        className="glass sticky top-0 z-40"
+      >
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <span className="font-bold text-gray-900 tracking-tight">ЦифроРус<span className="text-gradient">-Курс</span></span>
+          <span className="font-bold text-gray-900 tracking-tight">
+            ЦифроРус<span className="text-gradient">-Курс</span>
+          </span>
           <div className="flex items-center gap-2">
             <Link href="/login" className="px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-white/70 transition-colors">
               Войти
             </Link>
-            <Link href="/register" className="btn-primary px-4 py-2 text-sm font-semibold rounded-lg">
-              Регистрация
-            </Link>
+            <Magnetic strength={0.25}>
+              <Link href="/register" className="btn-primary inline-block px-4 py-2 text-sm font-semibold rounded-lg">
+                Регистрация
+              </Link>
+            </Magnetic>
           </div>
         </div>
-      </header>
+      </motion.header>
 
       {/* Hero */}
-      <section className="relative overflow-hidden">
-        {/* Декоративные плавающие пятна */}
-        <div className="pointer-events-none absolute -top-24 -left-24 w-72 h-72 rounded-full bg-violet-300/30 blur-3xl animate-float" />
-        <div className="pointer-events-none absolute top-10 -right-16 w-72 h-72 rounded-full bg-indigo-300/30 blur-3xl animate-float" style={{ animationDelay: '2s' }} />
+      <section ref={heroRef} className="relative overflow-hidden">
+        {/* Пятна, следующие за курсором */}
+        <motion.div
+          aria-hidden
+          style={{ x: blob1x, y: blob1y }}
+          className="pointer-events-none absolute -top-28 -left-28 w-96 h-96 rounded-full bg-violet-400/25 blur-3xl"
+        />
+        <motion.div
+          aria-hidden
+          style={{ x: blob2x, y: blob2y }}
+          className="pointer-events-none absolute top-6 -right-24 w-96 h-96 rounded-full bg-indigo-400/25 blur-3xl"
+        />
+        <motion.div
+          aria-hidden
+          animate={{ y: [0, -14, 0] }}
+          transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
+          className="pointer-events-none absolute bottom-0 left-1/3 w-72 h-72 rounded-full bg-cyan-300/20 blur-3xl"
+        />
 
-        <div className="relative max-w-4xl mx-auto px-6 pt-20 pb-16 text-center">
-          <div className="animate-fade-up inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/70 border border-violet-100 text-violet-600 text-xs font-medium shadow-sm backdrop-blur">
+        <div className="relative max-w-4xl mx-auto px-6 pt-24 pb-16 text-center">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ type: 'spring', stiffness: 140, damping: 16, delay: 0.25 }}
+            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/70 border border-violet-100 text-violet-600 text-xs font-medium shadow-sm backdrop-blur"
+          >
             <span className="w-1.5 h-1.5 rounded-full bg-violet-500 animate-pulse" />
             Смешанное обучение · 72 ч. · 18 недель
-          </div>
+          </motion.div>
 
-          <h1 className="animate-fade-up delay-1 mt-6 text-5xl sm:text-6xl font-extrabold tracking-tight leading-[1.05]">
+          <motion.h1
+            initial={{ opacity: 0, y: 26 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ type: 'spring', stiffness: 110, damping: 16, delay: 0.35 }}
+            className="mt-7 text-5xl sm:text-6xl font-extrabold tracking-tight leading-[1.05]"
+          >
             <span className="text-gradient">ЦифроРус-Курс</span>
-          </h1>
+          </motion.h1>
 
-          <p className="animate-fade-up delay-2 mt-5 text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
-            Учебная платформа курса «Цифровые технологии в обучении русскому языку».
-            Формирование <span className="font-semibold text-gray-800">критической ИИ-грамотности</span> будущих учителей.
+          {/* Подзаголовок — пословное появление */}
+          <p className="mt-5 text-xl sm:text-2xl font-semibold text-gray-800 flex flex-wrap justify-center gap-x-2">
+            {HERO_WORDS.map((w, i) => (
+              <motion.span
+                key={i}
+                initial={{ opacity: 0, y: 14, filter: 'blur(6px)' }}
+                animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                transition={{ delay: 0.55 + i * 0.07, type: 'spring', stiffness: 130, damping: 16 }}
+              >
+                {w}
+              </motion.span>
+            ))}
           </p>
 
-          <div className="animate-fade-up delay-3 mt-9 flex items-center justify-center gap-3">
-            <Link href="/register" className="btn-primary px-7 py-3.5 rounded-xl text-sm font-semibold">
-              Войти в кабинет
-            </Link>
-            <a href="#modules" className="px-7 py-3.5 rounded-xl border border-gray-200 bg-white/60 text-gray-700 text-sm font-semibold hover:bg-white transition-colors">
+          <motion.p
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.05, type: 'spring', stiffness: 110, damping: 16 }}
+            className="mt-4 text-gray-500 max-w-2xl mx-auto leading-relaxed"
+          >
+            Учебная платформа для формирования{' '}
+            <span className="font-semibold text-gray-700">критической ИИ-грамотности</span> будущих учителей
+            русского языка.
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.2, type: 'spring', stiffness: 110, damping: 16 }}
+            className="mt-9 flex items-center justify-center gap-3"
+          >
+            <Magnetic>
+              <Link href="/register" className="btn-primary inline-block px-8 py-3.5 rounded-xl text-sm font-semibold">
+                Войти в кабинет →
+              </Link>
+            </Magnetic>
+            <a
+              href="#modules"
+              className="px-8 py-3.5 rounded-xl border border-gray-200 bg-white/60 text-gray-700 text-sm font-semibold hover:bg-white hover:-translate-y-0.5 transition-all"
+            >
               О курсе
             </a>
-          </div>
+          </motion.div>
+
+          {/* Статистика-счётчики */}
+          <Stagger gap={0.1} className="mt-14 grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {STATS.map(s => (
+              <StaggerItem key={s.label}>
+                <div className="card p-4">
+                  <p className="text-3xl font-extrabold text-gradient">
+                    <Counter to={s.to} suffix={s.suffix} />
+                  </p>
+                  <p className="mt-0.5 text-xs text-gray-400">{s.label}</p>
+                </div>
+              </StaggerItem>
+            ))}
+          </Stagger>
         </div>
       </section>
 
       {/* Модули */}
-      <section id="modules" className="max-w-6xl mx-auto px-6 py-12 scroll-mt-20">
-        <Reveal as="h2" className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-5">
-          Структура курса
-        </Reveal>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {MODULES.map((m, i) => (
-            <Reveal key={m.n} delay={i * 80}>
-              <div className="card card-hover h-full p-5">
-                <div className={`w-11 h-11 rounded-2xl bg-gradient-to-br ${m.accent} text-white font-bold flex items-center justify-center mb-4 shadow-md`}>
+      <section id="modules" className="max-w-6xl mx-auto px-6 py-14 scroll-mt-20">
+        <FadeUp>
+          <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-5">Структура курса</h2>
+        </FadeUp>
+        <Stagger className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {MODULES.map(m => (
+            <StaggerItem key={m.n}>
+              <TiltCard className="card relative h-full p-5 will-change-transform">
+                <motion.div
+                  whileHover={{ rotate: [0, -6, 6, 0] }}
+                  transition={{ duration: 0.5 }}
+                  className={`w-11 h-11 rounded-2xl bg-gradient-to-br ${m.accent} text-white font-bold flex items-center justify-center mb-4 shadow-md`}
+                >
                   {m.n}
-                </div>
+                </motion.div>
                 <p className="text-sm font-semibold text-gray-900 leading-snug">{m.title}</p>
                 <p className="mt-2 text-xs text-gray-400">{m.weeks} · {m.hours}</p>
-              </div>
-            </Reveal>
+              </TiltCard>
+            </StaggerItem>
           ))}
-        </div>
+        </Stagger>
       </section>
 
       {/* Возможности */}
-      <section className="max-w-6xl mx-auto px-6 py-12">
-        <Reveal as="h2" className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-5">
-          Возможности платформы
-        </Reveal>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {FEATURES.map((f, i) => (
-            <Reveal key={f.title} delay={i * 80}>
-              <div className="card card-hover h-full p-5">
-                <div className="text-3xl mb-3">{f.icon}</div>
+      <section className="max-w-6xl mx-auto px-6 py-14">
+        <FadeUp>
+          <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-5">Возможности платформы</h2>
+        </FadeUp>
+        <Stagger className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {FEATURES.map(f => (
+            <StaggerItem key={f.title}>
+              <TiltCard className="card relative h-full p-5 will-change-transform">
+                <motion.div
+                  whileHover={{ scale: 1.25, rotate: 8 }}
+                  transition={{ type: 'spring', stiffness: 260, damping: 12 }}
+                  className="text-3xl mb-3 inline-block"
+                >
+                  {f.icon}
+                </motion.div>
                 <p className="text-sm font-semibold text-gray-900">{f.title}</p>
                 <p className="mt-1 text-xs text-gray-500 leading-relaxed">{f.text}</p>
-              </div>
-            </Reveal>
+              </TiltCard>
+            </StaggerItem>
           ))}
-        </div>
+        </Stagger>
       </section>
 
-      {/* CTA */}
-      <section className="max-w-6xl mx-auto px-6 py-12">
-        <Reveal>
-          <div className="relative overflow-hidden rounded-3xl p-10 text-center bg-gradient-to-br from-violet-600 to-indigo-600 shadow-lg">
-            <div className="pointer-events-none absolute -top-10 -right-10 w-48 h-48 rounded-full bg-white/10 blur-2xl" />
-            <h3 className="text-2xl font-bold text-white">Готовы начать курс?</h3>
+      {/* CTA с параллаксом */}
+      <section className="max-w-6xl mx-auto px-6 py-14">
+        <FadeUp>
+          <div className="relative overflow-hidden rounded-3xl p-12 text-center bg-gradient-to-br from-violet-600 via-violet-600 to-indigo-600 shadow-lg">
+            <Parallax speed={0.25} className="pointer-events-none absolute -top-16 -right-10 w-56 h-56 rounded-full bg-white/10 blur-2xl" />
+            <Parallax speed={-0.2} className="pointer-events-none absolute -bottom-20 -left-10 w-56 h-56 rounded-full bg-white/10 blur-2xl" />
+            <motion.h3
+              initial={{ opacity: 0, y: 14 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ type: 'spring', stiffness: 120, damping: 16 }}
+              className="text-3xl font-bold text-white"
+            >
+              Готовы начать курс?
+            </motion.h3>
             <p className="mt-2 text-violet-100 text-sm">Зарегистрируйтесь и получите доступ к личному кабинету.</p>
-            <Link href="/register" className="inline-block mt-6 px-7 py-3 rounded-xl bg-white text-violet-700 text-sm font-semibold hover:bg-violet-50 transition-colors">
-              Создать аккаунт
-            </Link>
+            <Magnetic>
+              <Link
+                href="/register"
+                className="inline-block mt-7 px-8 py-3.5 rounded-xl bg-white text-violet-700 text-sm font-semibold shadow-md hover:shadow-xl hover:-translate-y-0.5 transition-all"
+              >
+                Создать аккаунт
+              </Link>
+            </Magnetic>
           </div>
-        </Reveal>
+        </FadeUp>
       </section>
 
-      {/* Футер */}
       <footer className="max-w-6xl mx-auto px-6 py-10 text-center">
         <p className="text-xs text-gray-400">
           Авторская платформа диссертационного исследования · УзГУМЯ · старт — сентябрь 2026
