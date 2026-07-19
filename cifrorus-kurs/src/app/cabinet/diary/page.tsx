@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { getCurrentStudent } from '@/lib/auth'
 import { supabase } from '@/lib/supabase'
 import { MODULES, getAssignment } from '@/lib/course'
+import { IconArrowLeft, IconBadge, IconBook } from '@/components/icons'
 
 export const dynamic = 'force-dynamic'
 
@@ -32,13 +33,20 @@ export default async function DiaryPage() {
   return (
     <main className="flex-1">
       <div className="max-w-3xl mx-auto px-6 py-8">
-        <Link href="/cabinet" className="text-sm text-gray-400 hover:text-gray-600">← В кабинет</Link>
+        <Link href="/cabinet" className="inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-700 transition-colors">
+          <IconArrowLeft /> В кабинет
+        </Link>
 
-        <div className="mt-4 mb-6">
-          <h1 className="text-xl font-bold text-gray-900">📓 ИИ-дневник</h1>
-          <p className="text-sm text-gray-500">
-            Протоколы вашей работы с нейросетями (Модуль 3): запрос, ответ ИИ и критическая переработка.
-          </p>
+        <div className="animate-fade-up mt-5 mb-7 flex items-start gap-3.5">
+          <IconBadge tint="bg-violet-50 border-violet-100 text-violet-600">
+            <IconBook />
+          </IconBadge>
+          <div>
+            <h1 className="text-xl font-bold text-gray-900">ИИ-дневник</h1>
+            <p className="text-sm text-gray-500 mt-0.5">
+              Протоколы работы с нейросетями (Модуль 3): запрос, ответ ИИ и критическая переработка.
+            </p>
+          </div>
         </div>
 
         {rows.length === 0 ? (
@@ -48,12 +56,12 @@ export default async function DiaryPage() {
             </p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="stagger space-y-4">
             {rows.map(r => {
               const a = getAssignment(r.assignment_key)
               const c = r.content ?? {}
               return (
-                <div key={r.assignment_key} className="rounded-2xl border border-gray-200 overflow-hidden">
+                <div key={r.assignment_key} className="card card-hover overflow-hidden">
                   <div className="px-5 py-3 bg-gray-50 border-b border-gray-100 flex items-center justify-between">
                     <p className="text-sm font-semibold text-gray-900">{a?.title ?? r.assignment_key}</p>
                     {r.updated_at && (

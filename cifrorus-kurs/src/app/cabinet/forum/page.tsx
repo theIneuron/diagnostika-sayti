@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { getCurrentStudent } from '@/lib/auth'
 import { supabase } from '@/lib/supabase'
 import { NewPostForm, ReplyForm } from '@/components/ForumForms'
+import { IconArrowLeft, IconBadge, IconChat } from '@/components/icons'
 
 export const dynamic = 'force-dynamic'
 
@@ -39,13 +40,20 @@ export default async function ForumPage() {
   return (
     <main className="flex-1">
       <div className="max-w-3xl mx-auto px-6 py-8">
-        <Link href="/cabinet" className="text-sm text-gray-400 hover:text-gray-600">← В кабинет</Link>
+        <Link href="/cabinet" className="inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-700 transition-colors">
+          <IconArrowLeft /> В кабинет
+        </Link>
 
-        <div className="mt-4 mb-6">
-          <h1 className="text-xl font-bold text-gray-900">💬 Форум — этика ИИ</h1>
-          <p className="text-sm text-gray-500">
-            Задание 1.3: опубликуйте пост и ответьте хотя бы одному сокурснику.
-          </p>
+        <div className="animate-fade-up mt-5 mb-7 flex items-start gap-3.5">
+          <IconBadge tint="bg-violet-50 border-violet-100 text-violet-600">
+            <IconChat />
+          </IconBadge>
+          <div>
+            <h1 className="text-xl font-bold text-gray-900">Форум — этика ИИ</h1>
+            <p className="text-sm text-gray-500 mt-0.5">
+              Задание 1.3: опубликуйте пост и ответьте хотя бы одному сокурснику.
+            </p>
+          </div>
         </div>
 
         <div className="mb-8">
@@ -55,13 +63,13 @@ export default async function ForumPage() {
         {posts.length === 0 ? (
           <p className="text-sm text-gray-400">Пока нет постов — будьте первым.</p>
         ) : (
-          <div className="space-y-4">
+          <div className="stagger space-y-4">
             {posts.map(p => {
               const replies = [...(p.forum_replies ?? [])].sort(
                 (a, b) => +new Date(a.created_at) - +new Date(b.created_at),
               )
               return (
-                <div key={p.id} className="rounded-2xl border border-gray-200 p-5">
+                <div key={p.id} className="card card-hover p-5">
                   <div className="flex items-center justify-between mb-1">
                     <p className="text-sm font-semibold text-gray-900">{p.students?.full_name ?? '—'}</p>
                     <span className="text-xs text-gray-400">{fmt(p.created_at)}</span>

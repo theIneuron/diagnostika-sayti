@@ -4,6 +4,7 @@ import { isAdmin } from '@/lib/adminAuth'
 import { logoutAdmin } from '@/app/actions/adminAuth'
 import { supabase } from '@/lib/supabase'
 import { getAssignment } from '@/lib/course'
+import { IconBook, IconLogout, IconTable } from '@/components/icons'
 
 export const dynamic = 'force-dynamic'
 
@@ -40,21 +41,25 @@ export default async function AdminPage() {
 
   return (
     <main className="flex-1">
-      <header className="border-b border-gray-100 bg-white">
-        <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div>
-            <p className="font-semibold text-gray-900">Панель преподавателя</p>
+      <header className="glass sticky top-0 z-40">
+        <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between gap-4">
+          <div className="min-w-0">
+            <p className="font-bold text-gray-900 tracking-tight">Панель преподавателя</p>
             <p className="text-xs text-gray-400">На проверке: {pending} · всего работ: {rows.length}</p>
           </div>
-          <div className="flex items-center gap-4">
-            <Link href="/admin/vedomost" className="text-sm text-violet-600 font-medium hover:text-violet-800 transition-colors">
-              Ведомость
+          <div className="flex items-center gap-1">
+            <Link href="/admin/vedomost" className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium text-gray-600 hover:text-violet-700 hover:bg-violet-50 transition-colors">
+              <span className="text-gray-400"><IconTable /></span>
+              <span className="hidden sm:inline">Ведомость</span>
             </Link>
-            <Link href="/admin/diaries" className="text-sm text-violet-600 font-medium hover:text-violet-800 transition-colors">
-              ИИ-дневники
+            <Link href="/admin/diaries" className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium text-gray-600 hover:text-violet-700 hover:bg-violet-50 transition-colors">
+              <span className="text-gray-400"><IconBook /></span>
+              <span className="hidden sm:inline">ИИ-дневники</span>
             </Link>
             <form action={logoutAdmin}>
-              <button className="text-sm text-gray-400 hover:text-gray-700 transition-colors">Выйти</button>
+              <button title="Выйти" className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors">
+                <IconLogout />
+              </button>
             </form>
           </div>
         </div>
@@ -66,7 +71,7 @@ export default async function AdminPage() {
         {rows.length === 0 ? (
           <p className="text-sm text-gray-400">Пока нет отправленных работ.</p>
         ) : (
-          <div className="rounded-2xl border border-gray-200 divide-y divide-gray-50 overflow-hidden">
+          <div className="animate-fade-up card divide-y divide-gray-50 overflow-hidden">
             {rows.map(r => {
               const a = getAssignment(r.assignment_key)
               const badge = STATUS_LABEL[r.status]

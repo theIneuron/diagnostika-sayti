@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { getCurrentStudent } from '@/lib/auth'
 import { supabase } from '@/lib/supabase'
 import { getAssignment } from '@/lib/course'
+import { IconArrowLeft, IconBadge, IconPen } from '@/components/icons'
 
 export const dynamic = 'force-dynamic'
 
@@ -37,19 +38,26 @@ export default async function ReviewListPage() {
   return (
     <main className="flex-1">
       <div className="max-w-3xl mx-auto px-6 py-8">
-        <Link href="/cabinet" className="text-sm text-gray-400 hover:text-gray-600">← В кабинет</Link>
+        <Link href="/cabinet" className="inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-700 transition-colors">
+          <IconArrowLeft /> В кабинет
+        </Link>
 
-        <div className="mt-4 mb-6">
-          <h1 className="text-xl font-bold text-gray-900">📝 Рецензирование</h1>
-          <p className="text-sm text-gray-500">
-            Задание 4.4: выберите работу сокурсника и напишите структурированную рецензию.
-          </p>
+        <div className="animate-fade-up mt-5 mb-7 flex items-start gap-3.5">
+          <IconBadge tint="bg-amber-50 border-amber-100 text-amber-600">
+            <IconPen />
+          </IconBadge>
+          <div>
+            <h1 className="text-xl font-bold text-gray-900">Рецензирование</h1>
+            <p className="text-sm text-gray-500 mt-0.5">
+              Задание 4.4: выберите работу сокурсника и напишите структурированную рецензию.
+            </p>
+          </div>
         </div>
 
         {rows.length === 0 ? (
           <p className="text-sm text-gray-400">Пока нет доступных для рецензии работ.</p>
         ) : (
-          <div className="rounded-2xl border border-gray-200 divide-y divide-gray-50 overflow-hidden">
+          <div className="animate-fade-up delay-1 card divide-y divide-gray-50 overflow-hidden">
             {rows.map(r => {
               const a = getAssignment(r.assignment_key)
               const done = reviewed.has(r.id)

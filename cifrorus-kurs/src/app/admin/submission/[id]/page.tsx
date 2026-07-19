@@ -7,6 +7,7 @@ import { getRubric } from '@/lib/ai/rubrics'
 import { AiScorePanel } from '@/components/AiScorePanel'
 import { GradeForm } from '@/components/GradeForm'
 import { approveReview } from '@/app/actions/reviews'
+import { IconArrowLeft } from '@/components/icons'
 
 export const dynamic = 'force-dynamic'
 
@@ -58,9 +59,11 @@ export default async function AdminSubmissionPage({ params }: { params: Promise<
   return (
     <main className="flex-1">
       <div className="max-w-3xl mx-auto px-6 py-8">
-        <Link href="/admin" className="text-sm text-gray-400 hover:text-gray-600">← В очередь</Link>
+        <Link href="/admin" className="inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-700 transition-colors">
+          <IconArrowLeft /> В очередь
+        </Link>
 
-        <div className="mt-4 mb-6">
+        <div className="animate-fade-up mt-5 mb-6">
           <p className="text-xs text-gray-400">
             {moduleOf && `Модуль ${moduleOf.n} · `}{assignment?.title ?? sub.assignment_key}
           </p>
@@ -69,7 +72,7 @@ export default async function AdminSubmissionPage({ params }: { params: Promise<
         </div>
 
         {/* Ответ студента */}
-        <div className="rounded-2xl border border-gray-200 p-5 mb-6">
+        <div className="animate-fade-up delay-1 card p-6 mb-6">
           <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Ответ студента</p>
           {assignment?.kind === 'protocol' ? (
             <div className="space-y-3">
@@ -108,7 +111,7 @@ export default async function AdminSubmissionPage({ params }: { params: Promise<
         )}
 
         {/* Выставление балла */}
-        <div className="rounded-2xl border border-gray-200 p-5">
+        <div className="animate-fade-up delay-2 card p-6">
           <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Оценка преподавателя</p>
           <GradeForm
             submissionId={sub.id}
@@ -122,7 +125,7 @@ export default async function AdminSubmissionPage({ params }: { params: Promise<
 
         {/* Рецензии сокурсников — одобрение */}
         {reviews.length > 0 && (
-          <div className="mt-6 rounded-2xl border border-gray-200 p-5">
+          <div className="animate-fade-up delay-3 card mt-6 p-6">
             <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
               Рецензии сокурсников ({reviews.length})
             </p>

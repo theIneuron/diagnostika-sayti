@@ -4,6 +4,7 @@ import { getCurrentStudent } from '@/lib/auth'
 import { supabase } from '@/lib/supabase'
 import { getAssignment, MODULES } from '@/lib/course'
 import { TaskForm } from '@/components/TaskForm'
+import { IconArrowLeft } from '@/components/icons'
 
 export const dynamic = 'force-dynamic'
 
@@ -54,9 +55,11 @@ export default async function TaskPage({ params }: { params: Promise<{ key: stri
   return (
     <main className="flex-1">
       <div className="max-w-3xl mx-auto px-6 py-8">
-        <Link href="/cabinet" className="text-sm text-gray-400 hover:text-gray-600">← В кабинет</Link>
+        <Link href="/cabinet" className="inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-700 transition-colors">
+          <IconArrowLeft /> В кабинет
+        </Link>
 
-        <div className="mt-4 flex items-start justify-between gap-4">
+        <div className="animate-fade-up mt-5 flex items-start justify-between gap-4">
           <div>
             {moduleOf && (
               <p className="text-xs text-gray-400 mb-1">Модуль {moduleOf.n} · {moduleOf.title}</p>
@@ -75,7 +78,7 @@ export default async function TaskPage({ params }: { params: Promise<{ key: stri
           </p>
         )}
 
-        <div className="mt-6 rounded-2xl border border-gray-200 p-5">
+        <div className="animate-fade-up delay-1 card mt-6 p-6">
           {assignment.check === 'auto' ? (
             <p className="text-sm text-gray-500">
               Это тест из 30 вопросов с автоматической проверкой. Прохождение теста будет добавлено
@@ -107,7 +110,7 @@ export default async function TaskPage({ params }: { params: Promise<{ key: stri
 
         {/* Рецензии сокурсников (одобренные преподавателем) */}
         {approvedReviews.length > 0 && (
-          <div className="mt-6 rounded-2xl border border-gray-200 p-5">
+          <div className="animate-fade-up delay-1 card mt-6 p-6">
             <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
               Рецензии сокурсников
             </p>

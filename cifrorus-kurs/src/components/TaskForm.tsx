@@ -62,9 +62,15 @@ export function TaskForm({
 
       {kind === 'protocol' ? (
         <>
-          <div className="text-xs text-gray-500 bg-violet-50 border border-violet-100 rounded-lg p-3">
-            📓 Протокол ИИ-дневника: зафиксируйте обращение к нейросети и его критическую переработку.
-            Эти данные сохраняются в вашем разделе «ИИ-дневник».
+          <div className="flex items-start gap-2.5 text-xs text-violet-700 bg-violet-50 border border-violet-100 rounded-xl p-3.5">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="mt-0.5 shrink-0">
+              <path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2z" />
+              <path d="M22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z" />
+            </svg>
+            <span>
+              Протокол ИИ-дневника: зафиксируйте обращение к нейросети и его критическую переработку.
+              Данные сохраняются в разделе «ИИ-дневник».
+            </span>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">1. Ваш промпт (запрос к ИИ)</label>

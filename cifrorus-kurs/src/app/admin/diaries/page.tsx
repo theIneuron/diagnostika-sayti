@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { isAdmin } from '@/lib/adminAuth'
 import { supabase } from '@/lib/supabase'
 import { MODULES, getAssignment } from '@/lib/course'
+import { IconArrowLeft, IconBadge, IconBook } from '@/components/icons'
 
 export const dynamic = 'force-dynamic'
 
@@ -45,16 +46,25 @@ export default async function DiariesPage() {
   return (
     <main className="flex-1">
       <div className="max-w-3xl mx-auto px-6 py-8">
-        <Link href="/admin" className="text-sm text-gray-400 hover:text-gray-600">← В панель</Link>
-        <h1 className="text-xl font-bold text-gray-900 mt-2 mb-1">ИИ-дневники студентов</h1>
-        <p className="text-sm text-gray-500 mb-6">Протоколы работы с нейросетями (Модуль 3).</p>
+        <Link href="/admin" className="inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-700 transition-colors">
+          <IconArrowLeft /> В панель
+        </Link>
+        <div className="animate-fade-up mt-5 mb-7 flex items-start gap-3.5">
+          <IconBadge tint="bg-violet-50 border-violet-100 text-violet-600">
+            <IconBook />
+          </IconBadge>
+          <div>
+            <h1 className="text-xl font-bold text-gray-900">ИИ-дневники студентов</h1>
+            <p className="text-sm text-gray-500 mt-0.5">Протоколы работы с нейросетями (Модуль 3).</p>
+          </div>
+        </div>
 
         {groups.length === 0 ? (
           <p className="text-sm text-gray-400">Пока нет заполненных протоколов.</p>
         ) : (
-          <div className="space-y-6">
+          <div className="stagger space-y-6">
             {groups.map((g, gi) => (
-              <div key={gi} className="rounded-2xl border border-gray-200 overflow-hidden">
+              <div key={gi} className="card card-hover overflow-hidden">
                 <div className="px-5 py-3 bg-gray-50 border-b border-gray-100">
                   <p className="text-sm font-semibold text-gray-900">{g.name}</p>
                   <p className="text-xs text-gray-400">{g.group}</p>
