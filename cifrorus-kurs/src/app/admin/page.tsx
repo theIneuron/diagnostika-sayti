@@ -46,9 +46,17 @@ export default async function AdminPage() {
             <p className="font-semibold text-gray-900">Панель преподавателя</p>
             <p className="text-xs text-gray-400">На проверке: {pending} · всего работ: {rows.length}</p>
           </div>
-          <form action={logoutAdmin}>
-            <button className="text-sm text-gray-400 hover:text-gray-700 transition-colors">Выйти</button>
-          </form>
+          <div className="flex items-center gap-4">
+            <Link href="/admin/vedomost" className="text-sm text-violet-600 font-medium hover:text-violet-800 transition-colors">
+              Ведомость
+            </Link>
+            <Link href="/admin/diaries" className="text-sm text-violet-600 font-medium hover:text-violet-800 transition-colors">
+              ИИ-дневники
+            </Link>
+            <form action={logoutAdmin}>
+              <button className="text-sm text-gray-400 hover:text-gray-700 transition-colors">Выйти</button>
+            </form>
+          </div>
         </div>
       </header>
 
