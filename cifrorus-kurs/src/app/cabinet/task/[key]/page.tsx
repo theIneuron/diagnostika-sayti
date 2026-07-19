@@ -3,7 +3,9 @@ import { notFound, redirect } from 'next/navigation'
 import { getCurrentStudent } from '@/lib/auth'
 import { supabase } from '@/lib/supabase'
 import { getAssignment, MODULES } from '@/lib/course'
+import { getRubric } from '@/lib/ai/rubrics'
 import { TaskForm } from '@/components/TaskForm'
+import { AiScorePanel } from '@/components/AiScorePanel'
 
 export const dynamic = 'force-dynamic'
 
@@ -27,7 +29,7 @@ export default async function TaskPage({ params }: { params: Promise<{ key: stri
 
   const { data: sub } = await supabase
     .from('submissions')
-    .select('content, status, score, feedback, ai_score, ai_total')
+    .select('content, status, score, feedback, ai_score, ai_total, ai_model')
     .eq('student_id', student.id)
     .eq('assignment_key', decodedKey)
     .maybeSingle()
@@ -35,6 +37,9 @@ export default async function TaskPage({ params }: { params: Promise<{ key: stri
   const content = (sub?.content ?? {}) as { text?: string; link?: string }
   const status: string | null = sub?.status ?? null
   const badge = status ? STATUS_LABEL[status] : null
+
+  const rubric = getRubric(decodedKey)
+  const showAi = assignment.check === 'ai' && !!rubric && !!(content.text && content.text.trim())
 
   return (
     <main className="flex-1">
@@ -76,6 +81,17 @@ export default async function TaskPage({ params }: { params: Promise<{ key: stri
             />
           )}
         </div>
+
+        {/* Оценка ИИ (формативная, для заданий с рубрикой) */}
+        {showAi && rubric && (
+          <AiScorePanel
+            assignmentKey={decodedKey}
+            platformMax={rubric.platformMax}
+            savedEval={sub?.ai_score ?? null}
+            savedScaled={sub?.ai_total ?? null}
+            model={sub?.ai_model ?? null}
+          />
+        )}
 
         {/* Результат проверки */}
         {status === 'graded' && (
